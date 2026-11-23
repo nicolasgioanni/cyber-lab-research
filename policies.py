@@ -7,7 +7,9 @@ import json
 
 EFFECTIVE_DATE = "2026-11-23"
 DATE_LABEL = "November 23, 2026"
-CONTACT = '<a href="mailto:ngioanni@uw.edu">ngioanni@uw.edu</a>'
+# The same document can be read inside an admitted visit, where provider-injected
+# decoder scripts do not run. Keep the published reporting link usable in both views.
+CONTACT = '<!--email_off--><a href="mailto:ngioanni@uw.edu">ngioanni@uw.edu</a><!--/email_off-->'
 CF_PRIVACY = '<a href="https://www.cloudflare.com/privacypolicy/">Cloudflare Privacy Policy</a>'
 CF_TURNSTILE = '<a href="https://www.cloudflare.com/turnstile-privacy-policy/">Turnstile Privacy Addendum</a>'
 CF_COOKIES = '<a href="https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/">Cloudflare cookie reference</a>'
