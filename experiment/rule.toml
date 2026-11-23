@@ -1,0 +1,6 @@
+title = "Synthetic history study"
+
+[[rules]]
+id = "research-fixture-marker"
+description = "Inert marker written exclusively by this experiment"
+regex = '''CYBERLAB_SAMPLE_[A-F0-9]{20}'''
