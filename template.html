@@ -12,8 +12,8 @@
       <header class="section-header lab-section-heading"><h2 class="section-heading" id="areas-title">Research areas</h2></header>
       <div class="featured-grid featured-grid--three">
         <article class="glass-card glass-card--comfortable portfolio-card portfolio-card--detail">
-          <div class="content-card__header"><p class="lab-status">Planned</p><h3 class="content-card__title"><a class="lab-title-link" href="/agents">Agents</a></h3></div>
-          <p class="content-card__summary">Can an agent trace a dependency advisory to the affected code and propose a fix that preserves expected behavior?</p>
+          <div class="content-card__header"><p class="lab-status">Published study</p><h3 class="content-card__title"><a class="lab-title-link" href="/agents">Agents</a></h3></div>
+          <p class="content-card__summary">Patching a dependency from a CVE. {{AGENT_TEASER}}</p>
         </article>
         <article class="glass-card glass-card--comfortable portfolio-card portfolio-card--detail">
           <div class="content-card__header"><p class="lab-status">Published study</p><h3 class="content-card__title"><a class="lab-title-link" href="/validation">Validation</a></h3></div>
@@ -37,21 +37,50 @@
   <div class="page-intro page-intro--panel motion-reveal">
     <div class="glass-surface glass-surface--strong page-intro__surface">
       <header class="section-header section-header--page"><div class="section-header__copy">
-        <p class="eyebrow">Planned</p>
         <h1 id="agents-title" class="page-title" tabindex="-1">Agents</h1>
-        <p class="page-description">An advisory identifies an affected package. Remediation also requires finding where a project depends on it, changing the right files, and checking the behavior of the result.</p>
+        <p class="page-description">Can an agent turn a vulnerability advisory into a working patch? Each trial records what the agent received, what it changed, and what a separate check could confirm.</p>
       </div></header>
     </div>
   </div>
   <div class="research-list" data-motion="enabled">
-    <article class="glass-surface glass-surface--strong lab-panel research-project-wrap">
-      <h2 class="section-heading">Evaluating an agent’s patch</h2>
-      <p class="lab-lead">The planned benchmark pairs a synthetic repository with an advisory and a known affected dependency. The agent will be asked to explain the dependency path and submit a patch for review.</p>
-      <dl class="lab-measures">
-        <div><dt>Identification</dt><dd>Compare the files, versions, and dependency path cited by the agent with the fixture’s known dependency graph.</dd></div>
-        <div><dt>Remediation</dt><dd>Inspect the proposed change and rerun the dependency check against the same advisory data.</dd></div>
-        <div><dt>Regression checks</dt><dd>Run the project’s behavioral tests. Record failed checks and unnecessary changes alongside any successful repair.</dd></div>
-      </dl>
+    <article class="glass-surface glass-surface--strong lab-panel research-project-wrap" aria-labelledby="remediation-title">
+      <header class="section-header section-header--compact"><div class="section-header__copy">
+        <p class="eyebrow">Remediation study</p>
+        <h2 id="remediation-title" class="section-heading">Patching a dependency from a CVE</h2>
+      </div></header>
+      <p class="lab-lead">{{AGENT_FINDING}}</p>
+      <div class="lab-study-method">
+        <section aria-labelledby="remediation-task">
+          <h3 class="content-card__title" id="remediation-task">What the agent received</h3>
+          <p>{{AGENT_SETUP}}</p>
+          <p>{{AGENT_METHOD}}</p>
+          <p>{{AGENT_CONFIG}}</p>
+        </section>
+        <section aria-labelledby="remediation-results">
+          <h3 class="content-card__title" id="remediation-results">Before and after the patch</h3>
+          <div class="study-table" role="region" aria-labelledby="remediation-results" tabindex="0">
+            <table><caption>Independent replay on the original and patched fixture</caption>
+              <thead><tr><th scope="col">Check</th><th scope="col">Original</th><th scope="col">Patched</th></tr></thead>
+              <tbody>{{AGENT_ROWS}}</tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+      <section class="lab-study-interpretation" aria-labelledby="remediation-trace">
+        <h3 class="content-card__title" id="remediation-trace">What happened during the trial</h3>
+        {{AGENT_TRACE}}
+      </section>
+      <section class="lab-study-interpretation" aria-labelledby="remediation-scope">
+        <h3 class="content-card__title" id="remediation-scope">What this establishes</h3>
+        <p>{{AGENT_SCOPE}}</p>
+      </section>
+      <nav class="lab-source-links" aria-label="Remediation study evidence">
+        <a href="{{AGENT_EVIDENCE}}/trial.json">Prompt and trial record</a>
+        <a href="{{AGENT_EVIDENCE}}/replay.json">Replay measurements</a>
+        <a href="{{AGENT_EVIDENCE}}/protocol.md">Method and replay instructions</a>
+        <a href="{{AGENT_EVIDENCE}}/candidate.patch">Agent patch</a>
+        <a href="https://github.com/advisories/GHSA-c2qf-rxjj-qqgw">CVE advisory</a>
+      </nav>
     </article>
   </div>
 </section>

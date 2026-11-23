@@ -1,4 +1,4 @@
-name: Check the history study
+name: Reproduce published studies
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
@@ -24,3 +24,26 @@ jobs:
           python3 build.py
           git diff --exit-code -- site/
           node --test edge/test.mjs
+
+  remediation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Replay the submitted agent patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          curl -fsSL --retry 3 https://nodejs.org/dist/v22.23.3/node-v22.23.3-linux-x64.tar.xz -o node.tar.xz
+          echo 'df450af89261115ef9f9e3830c3eeb2cc9213b63c720b1af623cb5dcbe2e02de  node.tar.xz' | sha256sum --check
+          tar -xJf node.tar.xz
+          curl -fsSL --retry 3 https://github.com/google/osv-scanner/releases/download/v2.7.1/osv-scanner_linux_amd64 -o osv-scanner
+          echo 'fb7dab19a8bd9bbe5c3189f09d4b7ee1820c9553a23bac202648a56efd2f6ee8  osv-scanner' | sha256sum --check
+          chmod 755 osv-scanner
+          export PATH="$RUNNER_TEMP/node-v22.23.3-linux-x64/bin:$PATH"
+          cd "$GITHUB_WORKSPACE/experiment/remediation"
+          python3 replay.py --patch candidate.patch --osv-scanner "$RUNNER_TEMP/osv-scanner" --output "$RUNNER_TEMP/replay.json"
+          diff -u replay.json "$RUNNER_TEMP/replay.json"

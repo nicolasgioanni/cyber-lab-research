@@ -15,6 +15,10 @@ In two disposable ARM64 Linux VMs, Gitleaks 8.30.1 reported the same counts in a
 
 The [first](site/data/worker-1.json) and [second](site/data/worker-2.json) measurements include the rule digest, UTC time and expected count for each case. The experiment code was the version in commit `f3a6f48`. A [GitHub-hosted Linux run](https://github.com/nicolasgioanni/cyber-lab-research/actions/runs/45087512165) independently produced the same four counts.
 
+## Agentic remediation study
+
+The [Agents study](https://lab.nicolasmgioanni.dev/agents) follows one agent from a CVE identifier to a submitted dependency patch. The [trial record](experiment/remediation/trial.json) preserves the task and command outcomes. The [replay protocol](experiment/remediation/protocol.md), [submitted patch](experiment/remediation/candidate.patch), and [before/after measurements](experiment/remediation/replay.json) let a reader verify the repair without running a model.
+
 ## Reproduce the history study
 
 Use Python 3.9 or newer, Git, and [Gitleaks 8.30.1](https://github.com/gitleaks/gitleaks/releases/tag/v8.30.1). The experiment creates disposable repositories under the system temporary directory. It runs without credentials or network access once the scanner is installed.

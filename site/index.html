@@ -58,8 +58,8 @@
       <header class="section-header lab-section-heading"><h2 class="section-heading" id="areas-title">Research areas</h2></header>
       <div class="featured-grid featured-grid--three">
         <article class="glass-card glass-card--comfortable portfolio-card portfolio-card--detail">
-          <div class="content-card__header"><p class="lab-status">Planned</p><h3 class="content-card__title"><a class="lab-title-link" href="/agents">Agents</a></h3></div>
-          <p class="content-card__summary">Can an agent trace a dependency advisory to the affected code and propose a fix that preserves expected behavior?</p>
+          <div class="content-card__header"><p class="lab-status">Published study</p><h3 class="content-card__title"><a class="lab-title-link" href="/agents">Agents</a></h3></div>
+          <p class="content-card__summary">Patching a dependency from a CVE. The agent updated semver from 7.5.1 to 7.5.2 and kept all 6 tests passing.</p>
         </article>
         <article class="glass-card glass-card--comfortable portfolio-card portfolio-card--detail">
           <div class="content-card__header"><p class="lab-status">Published study</p><h3 class="content-card__title"><a class="lab-title-link" href="/validation">Validation</a></h3></div>
@@ -83,21 +83,50 @@
   <div class="page-intro page-intro--panel motion-reveal">
     <div class="glass-surface glass-surface--strong page-intro__surface">
       <header class="section-header section-header--page"><div class="section-header__copy">
-        <p class="eyebrow">Planned</p>
         <h1 id="agents-title" class="page-title" tabindex="-1">Agents</h1>
-        <p class="page-description">An advisory identifies an affected package. Remediation also requires finding where a project depends on it, changing the right files, and checking the behavior of the result.</p>
+        <p class="page-description">Can an agent turn a vulnerability advisory into a working patch? Each trial records what the agent received, what it changed, and what a separate check could confirm.</p>
       </div></header>
     </div>
   </div>
   <div class="research-list" data-motion="enabled">
-    <article class="glass-surface glass-surface--strong lab-panel research-project-wrap">
-      <h2 class="section-heading">Evaluating an agent’s patch</h2>
-      <p class="lab-lead">The planned benchmark pairs a synthetic repository with an advisory and a known affected dependency. The agent will be asked to explain the dependency path and submit a patch for review.</p>
-      <dl class="lab-measures">
-        <div><dt>Identification</dt><dd>Compare the files, versions, and dependency path cited by the agent with the fixture’s known dependency graph.</dd></div>
-        <div><dt>Remediation</dt><dd>Inspect the proposed change and rerun the dependency check against the same advisory data.</dd></div>
-        <div><dt>Regression checks</dt><dd>Run the project’s behavioral tests. Record failed checks and unnecessary changes alongside any successful repair.</dd></div>
-      </dl>
+    <article class="glass-surface glass-surface--strong lab-panel research-project-wrap" aria-labelledby="remediation-title">
+      <header class="section-header section-header--compact"><div class="section-header__copy">
+        <p class="eyebrow">Remediation study</p>
+        <h2 id="remediation-title" class="section-heading">Patching a dependency from a CVE</h2>
+      </div></header>
+      <p class="lab-lead">Given CVE-2022-25883, the agent traced the advisory to the release utility’s direct semver dependency and updated it from 7.5.1 to 7.5.2. The independent replay cleared the advisory finding and passed all 6 original tests.</p>
+      <div class="lab-study-method">
+        <section aria-labelledby="remediation-task">
+          <h3 class="content-card__title" id="remediation-task">What the agent received</h3>
+          <p>Fresh model context, no coaching or candidate restarts. Commands ran in a disposable offline Linux worker with a prefetched npm cache and a metadata-only copy of the named advisory. The advisory named the package and affected ranges. The agent had to determine whether the repository used it and produce the change.</p>
+          <p>The agent was asked to identify the affected version and dependency path, apply the smallest compatible update, and verify the result. The evaluator separately replayed the submitted patch against the original fixture.</p>
+          <p>One trial on 2026-11-23 UTC using gpt-6.2-sol with medium reasoning effort.</p>
+        </section>
+        <section aria-labelledby="remediation-results">
+          <h3 class="content-card__title" id="remediation-results">Before and after the patch</h3>
+          <div class="study-table" role="region" aria-labelledby="remediation-results" tabindex="0">
+            <table><caption>Independent replay on the original and patched fixture</caption>
+              <thead><tr><th scope="col">Check</th><th scope="col">Original</th><th scope="col">Patched</th></tr></thead>
+              <tbody><tr><th scope="row">Installed semver</th><td>7.5.1</td><td>7.5.2</td></tr><tr><th scope="row">OSV-Scanner 2.7.1 target findings</th><td>1</td><td>0</td></tr><tr><th scope="row">Behavior tests</th><td>6 of 6 passed</td><td>6 of 6 passed</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+      <section class="lab-study-interpretation" aria-labelledby="remediation-trace">
+        <h3 class="content-card__title" id="remediation-trace">What happened during the trial</h3>
+        <ol><li>The first file-listing command tried rg, which was unavailable. The agent switched to git ls-files, read the manifest, lockfile, source and tests, and used npm ls to identify the direct dependency.</li><li>OSV-Scanner flagged the baseline lockfile. A clean offline install and all six existing behavior tests passed before editing.</li><li>The agent used npm install with --package-lock-only and --save-exact to update semver to 7.5.2. The resulting diff changed only package.json and package-lock.json.</li><li>The agent ran git diff --check, scanned the updated lockfile, performed another clean install, confirmed the installed version with npm ls, and reran the six behavior tests.</li></ol>
+      </section>
+      <section class="lab-study-interpretation" aria-labelledby="remediation-scope">
+        <h3 class="content-card__title" id="remediation-scope">What this establishes</h3>
+        <p>This agent completed one repair in a small project with a direct dependency. The tests cover release selection and terminal output. Both scans used a frozen copy of the specified advisory. A single trial cannot estimate the agent’s success rate across other repositories or CVEs.</p>
+      </section>
+      <nav class="lab-source-links" aria-label="Remediation study evidence">
+        <a href="https://github.com/nicolasgioanni/cyber-lab-research/blob/f95fc3f41184de459827a7d775554ee016bfeaf7/experiment/remediation/trial.json">Prompt and trial record</a>
+        <a href="https://github.com/nicolasgioanni/cyber-lab-research/blob/f95fc3f41184de459827a7d775554ee016bfeaf7/experiment/remediation/replay.json">Replay measurements</a>
+        <a href="https://github.com/nicolasgioanni/cyber-lab-research/blob/f95fc3f41184de459827a7d775554ee016bfeaf7/experiment/remediation/protocol.md">Method and replay instructions</a>
+        <a href="https://github.com/nicolasgioanni/cyber-lab-research/blob/f95fc3f41184de459827a7d775554ee016bfeaf7/experiment/remediation/candidate.patch">Agent patch</a>
+        <a href="https://github.com/advisories/GHSA-c2qf-rxjj-qqgw">CVE advisory</a>
+      </nav>
     </article>
   </div>
 </section>
