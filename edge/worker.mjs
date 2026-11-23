@@ -118,7 +118,7 @@ async function verifyBot(request, secret, input, fetcher) {
   const ip = request.headers.get('CF-Connecting-IP');
   if (ip) body.set('remoteip', ip);
   const result = await fetcher('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-    method: 'POST', body, redirect: 'error', signal: AbortSignal.timeout(8000)
+    method: 'POST', body, redirect: 'manual', signal: AbortSignal.timeout(8000)
   });
   if (!result.ok) throw Error('Verification provider unavailable');
   const data = await result.json();

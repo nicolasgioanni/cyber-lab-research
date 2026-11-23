@@ -44,6 +44,7 @@ async function identity() {
 function issue(e,id,opts={}) {
   const fetcher = async (url,init) => {
     assert.equal(url,'https://challenges.cloudflare.com/turnstile/v0/siteverify');
+    assert.equal(init.redirect,'manual');
     assert.equal(init.body.get('secret'),'fixture-secret');
     assert.equal(init.body.get('remoteip'),'192.0.2.10');
     assert.equal(init.body.get('response'),'fixture-token');
@@ -102,7 +103,9 @@ test('provider validation is bound to the hostname, action and page public key, 
     const result=await issue(e,id,{fetcher:async()=>Response.json({success:true,hostname:'lab.nicolasmgioanni.dev',action:'lab_admission',cdata:id.keyId,...change})});
     assert.equal(result.status,403); assert.equal(result.headers.get('Set-Cookie'),null);
   }
-  assert.equal((await issue(e,id,{fetcher:async()=>new Response(null,{status:503})})).status,503);
+  for (const status of [302,503]) {
+    assert.equal((await issue(e,id,{fetcher:async()=>new Response(null,{status})})).status,503);
+  }
   assert.equal((await issue(e,id,{origin:'https://elsewhere.example'})).status,403);
   assert.equal((await issue(e,id,{body:'{"token":"invalid","publicKey":""}'})).status,403);
   assert.equal((await issue(e,id,{body:'x'.repeat(5000)})).status,403);
