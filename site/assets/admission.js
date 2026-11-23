@@ -46,7 +46,18 @@
       const result = await post('/access/verify', {
         headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token, publicKey})
       });
-      if (!result.ok) throw Error();
+      if (result.headers.get('cf-mitigated') === 'challenge') {
+        fail('Cloudflare requested another browser check. Restart verification to continue.');
+        return;
+      }
+      if (result.status === 503) {
+        fail('The lab verification service is temporarily unavailable. Try again shortly.');
+        return;
+      }
+      if (!result.ok) {
+        fail('The lab could not confirm this browser check. Restart verification for a fresh check.');
+        return;
+      }
       challenge = await result.json();
       if (challenge.keyId !== keyId || !/^[a-f0-9]{64}$/.test(challenge.nonce)) throw Error();
       if (phase !== 'verifying') return;
