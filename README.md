@@ -26,11 +26,16 @@ python3 -m json.tool .local/findings.json
 
 The runner checks the scanner version, writes a count for each sample and scan mode, and exits unsuccessfully on a count mismatch or scanner error. Reports containing raw marker text fail validation. The public CI workflow repeats the experiment with a checksum-pinned Linux binary.
 
-## Render the site
+## Build and verify the lab
+
+The public workspace and the monitored-access notice use the portfolio shell. The build packs the workspace, notice and evidence into a Cloudflare Pages Worker. Only the presentation assets and an unavailable page are in the static fallback.
 
 ```sh
 python3 build.py
-python3 -m http.server 8080 --bind 127.0.0.1 --directory site
+python3 edge/package.py
+node --test edge/test.mjs
 ```
 
-The site reuses the [portfolio’s design tokens](https://github.com/nicolasgioanni/Smart-Porfolio), portrait and Space Grotesk font. All assets are served from the site itself. The Cloudflare Pages deployment settings are production branch `main` and output directory `site`, with no build command. Changes to the private lab require a separate review before any findings are selected for this repository. GitHub Actions has read-only contents access.
+Use Node 22.13 or later for the SQLite-backed admission tests. Cloudflare Pages builds the production branch `main` with `python3 build.py && python3 edge/package.py` and publishes `dist`. The production binding `LAB_EVENTS` points to the lab's dedicated D1 database. The hostname-specific firewall rule applies a Managed Challenge before the Worker opens the notice. The production Pages alias redirects to the custom domain.
+
+Visitors can review published measurements after acknowledging the monitoring notice. The lab journals categorized security events and uses an essential first-party cookie for admission. The private operator console has a separate sign-in on the owner’s Mac. The public Git history contains the published study and its reproducible fixtures. [Open the lab](https://lab.nicolasmgioanni.dev/)

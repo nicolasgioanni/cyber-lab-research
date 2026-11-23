@@ -27,6 +27,15 @@ def load_measurement(path):
     return data
 
 
+def render_page(source, destination, title, description, values):
+    shell = (ROOT / 'shell.html').read_text()
+    content = (ROOT / source).read_text().rstrip()
+    page = shell.replace('{{MAIN}}', content)
+    for key, value in dict(values, TITLE=title, DESCRIPTION=description, REPO=REPO).items():
+        page = page.replace('{{' + key + '}}', value)
+    (SITE / destination).write_text(page)
+
+
 def render():
     files = sorted((SITE / 'data').glob('worker-*.json'))
     runs = [load_measurement(f) for f in files]
@@ -35,24 +44,24 @@ def render():
     for index, (sample, mode, expected) in enumerate(CASES):
         observed = ''.join(f'<td>{run["checks"][index]["observed"]}</td>' for run in runs)
         rows.append(f'<tr><th scope="row">{LABELS[sample]}</th><td>{LABELS[mode]}</td><td>{expected}</td>{observed}</tr>')
+    matched = sum(c['expected'] == c['observed'] for run in runs for c in run['checks'])
+    observations = sum(len(run['checks']) for run in runs)
     if runs:
-        matched = sum(c['expected'] == c['observed'] for r in runs for c in r['checks'])
-        verdict = f'{matched} of {sum(len(r["checks"]) for r in runs)} observations matched the expected counts.'
+        verdict = f'{matched} of {observations} observations matched the expected counts.'
         if matched == 4 * len(runs):
             verdict += ' Git history preserved the marker after the working tree was clean.'
-        status = 'Measured'
         links = ' '.join(f'<a href="data/{escape(f.name)}">Run {i + 1} JSON</a>' for i, f in enumerate(files))
         date = escape(runs[-1]['timestamp'].split('T')[0])
         note = f'Measured {date} UTC. Each measurement ran in a fresh ARM64 Linux VM using two new Git repositories. {links}'
     else:
-        status = 'Protocol'
         verdict = 'The expected counts below define the experiment. Measured runs are pending.'
         note = 'Measurements will appear here after review.'
-    template = (ROOT / 'template.html').read_text()
-    values = dict(REPO=REPO, HEADERS=headers, ROWS=''.join(rows), STATUS=status, VERDICT=verdict, NOTE=note)
-    for key, value in values.items():
-        template = template.replace('{{' + key + '}}', value)
-    (SITE / 'index.html').write_text(template)
+    values = dict(HEADERS=headers, ROWS=''.join(rows), VERDICT=verdict, NOTE=note,
+                  RUN_COUNT=str(len(runs)), MATCHED=str(matched), OBSERVATIONS=str(observations))
+    render_page('template.html', 'index.html', 'Cyber Defense Lab',
+                'Public defensive scanner measurements and reproducible experiments.', values)
+    render_page('entry-template.html', 'entry.html', 'Lab access notice',
+                'Review visitor permissions, security monitoring and session handling.', {})
 
 
 if __name__ == '__main__':

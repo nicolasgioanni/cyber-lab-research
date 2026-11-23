@@ -1,0 +1,11 @@
+name = "nmg-cyber-lab-research"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-11-01"
+
+[env.production.vars]
+BOT_CONTROL = "managed_challenge"
+
+[[env.production.d1_databases]]
+binding = "LAB_EVENTS"
+database_name = "nmg-lab-access"
+database_id = "fa26b102-e4c3-439e-a8f5-860867313e31"

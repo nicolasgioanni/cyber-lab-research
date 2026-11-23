@@ -1,3 +1,8 @@
 __pycache__/
 .DS_Store
 .local/
+dist/
+.wrangler/
+.dev.vars*
+.env
+.env.*
