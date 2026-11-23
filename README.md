@@ -33,4 +33,4 @@ python3 build.py
 python3 -m http.server 8080 --bind 127.0.0.1 --directory site
 ```
 
-Cloudflare Pages serves the committed `site` directory. Its production branch is `main`. Changes to the private lab require a separate review before any findings are selected for this repository. GitHub Actions has read-only contents access.
+The site reuses the [portfolio’s design tokens](https://github.com/nicolasgioanni/Smart-Porfolio), portrait and Space Grotesk font. All assets are served from the site itself. The Cloudflare Pages deployment settings are production branch `main` and output directory `site`, with no build command. Changes to the private lab require a separate review before any findings are selected for this repository. GitHub Actions has read-only contents access.
