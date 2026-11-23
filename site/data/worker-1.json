@@ -1,0 +1,33 @@
+{
+  "experiment": "history-scope",
+  "tool": "Gitleaks",
+  "version": "8.30.1",
+  "timestamp": "2026-11-23T00:15:27Z",
+  "rule_sha256": "0bb0da3f026d07ff6b269bba83e4d4605f79db4be671d13efef41692e0022515",
+  "checks": [
+    {
+      "sample": "removed-marker",
+      "mode": "dir",
+      "expected": 0,
+      "observed": 0
+    },
+    {
+      "sample": "removed-marker",
+      "mode": "git",
+      "expected": 1,
+      "observed": 1
+    },
+    {
+      "sample": "clean-control",
+      "mode": "dir",
+      "expected": 0,
+      "observed": 0
+    },
+    {
+      "sample": "clean-control",
+      "mode": "git",
+      "expected": 0,
+      "observed": 0
+    }
+  ]
+}

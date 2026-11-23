@@ -43,7 +43,7 @@ def render():
         status = 'Measured'
         links = ' '.join(f'<a href="data/{escape(f.name)}">Run {i + 1} JSON</a>' for i, f in enumerate(files))
         date = escape(runs[-1]['timestamp'].split('T')[0])
-        note = f'Measured {date} UTC. Each run starts with two new local repositories. {links}'
+        note = f'Measured {date} UTC. Each measurement ran in a fresh ARM64 Linux VM using two new Git repositories. {links}'
     else:
         status = 'Protocol'
         verdict = 'The expected counts below define the experiment. Measured runs are pending.'
