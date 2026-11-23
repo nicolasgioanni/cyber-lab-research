@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.4.0",
+  "id": "GHSA-c2qf-rxjj-qqgw",
+  "modified": "2026-02-04T20:39:09Z",
+  "aliases": [
+    "CVE-2022-25883"
+  ],
+  "affected": [
+    {
+      "package": {
+        "ecosystem": "npm",
+        "name": "semver"
+      },
+      "ranges": [
+        {
+          "type": "ECOSYSTEM",
+          "events": [
+            {
+              "introduced": "7.0.0"
+            },
+            {
+              "fixed": "7.5.2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "package": {
+        "ecosystem": "npm",
+        "name": "semver"
+      },
+      "ranges": [
+        {
+          "type": "ECOSYSTEM",
+          "events": [
+            {
+              "introduced": "6.0.0"
+            },
+            {
+              "fixed": "6.3.1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "package": {
+        "ecosystem": "npm",
+        "name": "semver"
+      },
+      "ranges": [
+        {
+          "type": "ECOSYSTEM",
+          "events": [
+            {
+              "introduced": "2.0.0-alpha"
+            },
+            {
+              "fixed": "5.7.2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "database_specific": {
+    "study_source": "https://raw.githubusercontent.com/github/advisory-database/056c81d4eabcc352b9af166d9fed9003464ce149/advisories/github-reviewed/2023/06/GHSA-c2qf-rxjj-qqgw/GHSA-c2qf-rxjj-qqgw.json",
+    "source_sha256": "955a08aac8ac34aada62d20397b3c331c9a03473d37a5ffcf7a6a7e79b728f37"
+  }
+}

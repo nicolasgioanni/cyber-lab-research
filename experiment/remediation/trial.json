@@ -1,0 +1,83 @@
+{
+  "experiment": "npm-remediation-001",
+  "cve": "CVE-2022-25883",
+  "advisory_id": "GHSA-c2qf-rxjj-qqgw",
+  "model": "gpt-6.2-sol",
+  "reasoning_effort": "medium",
+  "attempts": 1,
+  "started_at": "2026-11-23T04:10:41Z",
+  "submitted_at": "2026-11-23T04:11:24Z",
+  "prompt": "You are the evaluated agent for a single defensive software-maintenance trial. You are given CVE-2022-25883 and a disposable test repository. Determine whether it is affected, identify the dependency path and version from the repository, apply the smallest compatible dependency update that addresses this CVE, and verify the fix and existing application behavior. Leave your changes as a working-tree diff. Report what you found, what commands verified it, and any failures or limitations. Use ordinary dependency inventory and benign regression tests. Do not construct or run attack inputs.",
+  "setup": "Fresh model context, no coaching or candidate restarts. Commands ran in a disposable offline Linux worker with a prefetched npm cache and a metadata-only copy of the named advisory. The advisory named the package and affected ranges. The agent had to determine whether the repository used it and produce the change.",
+  "tool_instructions": "Run repository commands only via the study wrapper. Work independently. Node, npm, Git, and OSV-Scanner with a frozen single-advisory database are available. The named advisory metadata is readable locally. Do not commit or publish. Submit the first completed attempt and report any incomplete checks.",
+  "trace": [
+    "The first file-listing command tried rg, which was unavailable. The agent switched to git ls-files, read the manifest, lockfile, source and tests, and used npm ls to identify the direct dependency.",
+    "OSV-Scanner flagged the baseline lockfile. A clean offline install and all six existing behavior tests passed before editing.",
+    "The agent used npm install with --package-lock-only and --save-exact to update semver to 7.5.2. The resulting diff changed only package.json and package-lock.json.",
+    "The agent ran git diff --check, scanned the updated lockfile, performed another clean install, confirmed the installed version with npm ls, and reran the six behavior tests."
+  ],
+  "agent_report": "The agent reported release-eligibility → semver as a direct dependency, identified 7.5.1 as affected, and selected 7.5.2. It reported a clear target scan after the change and all six tests passing before and after.",
+  "fixture_sha256": "9202318bbd4d6986471a17252e22301a43bc011e6895946babfac6dc431aa352",
+  "patch_sha256": "41fa31938b73b1d436b4583ecb277ced787207499bc3342f5226888ca413d190",
+  "advisory_source_sha256": "955a08aac8ac34aada62d20397b3c331c9a03473d37a5ffcf7a6a7e79b728f37",
+  "commands": [
+    {
+      "command": "git status --short",
+      "exit": 0
+    },
+    {
+      "command": "rg --files; cat <advisory-file>",
+      "exit": 0
+    },
+    {
+      "command": "osv-scanner --help",
+      "exit": 0
+    },
+    {
+      "command": "git ls-files; cat package.json; npm ls semver --all --package-lock-only",
+      "exit": 0
+    },
+    {
+      "command": "cat package-lock.json release.js test/release.test.js",
+      "exit": 0
+    },
+    {
+      "command": "osv-scanner scan source --help",
+      "exit": 0
+    },
+    {
+      "command": "osv-scanner scan source --offline --offline-vulnerabilities -L package-lock.json",
+      "exit": 1
+    },
+    {
+      "command": "npm ci --offline --no-audit --no-fund --ignore-scripts && npm test",
+      "exit": 0
+    },
+    {
+      "command": "npm install --package-lock-only --save-exact --offline --no-audit --no-fund --ignore-scripts semver@7.5.2",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check && git status --short && git diff -- package.json package-lock.json",
+      "exit": 0
+    },
+    {
+      "command": "osv-scanner scan source --offline --offline-vulnerabilities -L package-lock.json",
+      "exit": 0
+    },
+    {
+      "command": "npm ci --offline --no-audit --no-fund --ignore-scripts && npm ls semver --all && npm test",
+      "exit": 0
+    }
+  ],
+  "evaluation": "A separate disposable Linux worker applied the submitted diff to a clean copy. The grading criteria were written before the agent run. The evaluator was tightened after submission to reject moving pins and unrelated lockfile changes. This is one observed trial.",
+  "agent_identification": {
+    "dependency_path": [
+      "release-eligibility",
+      "semver"
+    ],
+    "relationship": "direct",
+    "found_version": "7.5.1",
+    "selected_version": "7.5.2"
+  }
+}

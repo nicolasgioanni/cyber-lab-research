@@ -1,0 +1,14 @@
+{
+  "name": "release-eligibility",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Choose a release for a deployment channel and format its status.",
+  "main": "release.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "picocolors": "1.1.1",
+    "semver": "7.5.1"
+  }
+}

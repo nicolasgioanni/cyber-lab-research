@@ -1,0 +1,83 @@
+{
+  "cve": "CVE-2022-25883",
+  "advisory": "GHSA-c2qf-rxjj-qqgw",
+  "tools": {
+    "node": "v22.23.3",
+    "npm": "10.9.9",
+    "osv_scanner": "2.7.1"
+  },
+  "fixture_sha256": "9202318bbd4d6986471a17252e22301a43bc011e6895946babfac6dc431aa352",
+  "advisory_sha256": "83bb786c51f305801e4e4511fa2640c0774bf6a28848f94605d59a1d2c33d394",
+  "patch_sha256": "41fa31938b73b1d436b4583ecb277ced787207499bc3342f5226888ca413d190",
+  "before": {
+    "declared": "7.5.1",
+    "lock_version": "7.5.1",
+    "clean_install": true,
+    "installed_version": "7.5.1",
+    "inventory": [
+      {
+        "name": "lru-cache",
+        "version": "6.0.0"
+      },
+      {
+        "name": "picocolors",
+        "version": "1.1.1"
+      },
+      {
+        "name": "semver",
+        "version": "7.5.1"
+      },
+      {
+        "name": "yallist",
+        "version": "4.0.0"
+      }
+    ],
+    "target_findings": 1,
+    "tests": {
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    }
+  },
+  "changed_files": [
+    "package-lock.json",
+    "package.json"
+  ],
+  "after": {
+    "declared": "7.5.2",
+    "lock_version": "7.5.2",
+    "clean_install": true,
+    "installed_version": "7.5.2",
+    "inventory": [
+      {
+        "name": "lru-cache",
+        "version": "6.0.0"
+      },
+      {
+        "name": "picocolors",
+        "version": "1.1.1"
+      },
+      {
+        "name": "semver",
+        "version": "7.5.2"
+      },
+      {
+        "name": "yallist",
+        "version": "4.0.0"
+      }
+    ],
+    "target_findings": 0,
+    "tests": {
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    }
+  },
+  "outcome": "pass"
+}
