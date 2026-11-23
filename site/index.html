@@ -1,106 +1,74 @@
 <!doctype html>
-<html lang="en" data-theme="navy">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="description" content="Public defensive scanner measurements and reproducible experiments.">
-  <title>Cyber Defense Lab · Nicolas Gioanni</title>
-  <link rel="icon" href="/assets/portrait.png">
+  <meta name="description" content="Defensive tools, private monitoring and reproducible scanner evidence.">
+  <title>Defense operations · Cyber Lab</title>
+  <link rel="icon" href="/assets/lab-mark.png" type="image/png">
   <link rel="stylesheet" href="/assets/portfolio-tokens.css">
   <link rel="stylesheet" href="/assets/study.css">
   <script src="/assets/theme.js"></script>
 </head>
-<body>
-<a class="skip" href="#main">Skip to content</a>
-<header class="dock">
-  <a class="brand" href="https://nicolasmgioanni.dev/"><img src="/assets/portrait.png" width="40" height="40" alt=""><span>Nicolas Gioanni</span></a>
-  <nav class="routes" aria-label="Portfolio navigation">
-    <a href="https://nicolasmgioanni.dev/">Home</a>
-    <a href="https://nicolasmgioanni.dev/experience">Experience</a>
-    <a href="https://nicolasmgioanni.dev/research">Research</a>
-    <a href="https://nicolasmgioanni.dev/projects">Projects</a>
-    <a href="/" aria-current="page">Cyber Lab</a>
-  </nav>
-  <div class="actions">
-    <a class="icon" href="https://github.com/nicolasgioanni/cyber-lab-research" aria-label="Research repository on GitHub" title="GitHub"><svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19.2c-5 .7-5-2.4-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.1-1.5 6.1-6.6a5.1 5.1 0 0 0-1.4-3.6 4.7 4.7 0 0 0-.1-3.6s-1.1-.4-3.7 1.4a12.8 12.8 0 0 0-6.7 0C6.8.5 5.7.9 5.7.9a4.7 4.7 0 0 0-.1 3.6 5.1 5.1 0 0 0-1.4 3.6c0 5.1 3.1 6.3 6.1 6.6a3 3 0 0 0-.8 1.9V22"/></svg></a>
-    <details id="appearance" class="appearance" hidden><summary class="icon" aria-label="Choose color theme" title="Choose color theme"><span class="theme-icon" aria-hidden="true"></span></summary>
-      <fieldset><legend>Color theme</legend>
-        <label><input type="radio" name="theme" value="system">System</label>
-        <label><input type="radio" name="theme" value="light">Light</label>
-        <label><input type="radio" name="theme" value="navy">My mode</label>
-        <label><input type="radio" name="theme" value="dark">Dark</label>
-      </fieldset>
-    </details>
+<body class="workspace-page">
+
+<header class="site-header">
+  <div class="header-inner">
+    <span class="brand"><img src="/assets/lab-mark.png" alt="" width="36" height="36">Cyber Lab</span>
+    <fieldset class="theme-picker" hidden><legend class="sr-only">Color mode</legend>
+      <label><input type="radio" name="theme" value="light"><span class="sun" aria-hidden="true"></span>Light</label>
+      <label><input type="radio" name="theme" value="dark"><span class="moon" aria-hidden="true"></span>Dark</label>
+    </fieldset>
   </div>
 </header>
 <main id="main" class="workspace">
-  <header class="panel hero">
-    <div class="hero-content">
-      <div class="eyebrow"><span class="ring" aria-hidden="true"></span>Public workspace</div>
-      <h1>Cyber Defense Lab</h1>
-      <p>Inspect defensive controls, compare scanner output, and reproduce experiments from isolated Linux workers.</p>
-      <div class="hero-actions"><a class="button primary" href="#evidence">Inspect run evidence</a><a class="button" href="#operator">Operator access</a></div>
+  <section class="hero" aria-labelledby="workspace-title">
+    <div class="hero-copy"><div class="eyebrow"><span class="signal" aria-hidden="true"></span>Public workspace</div>
+      <h1 id="workspace-title">Defense operations</h1>
+      <p>Inspect the lab’s defensive tooling, monitoring boundaries and published scanner evidence.</p>
+      <div class="hero-actions"><a class="primary" href="#tooling">Inspect tooling</a><a class="secondary" href="#operator">Operator access</a></div>
     </div>
-    <section class="topology" aria-labelledby="environment-title">
-      <div class="topology-title"><span class="kicker">Lab topology</span><span class="mono">ENV / LOCAL</span></div>
-      <h2 id="environment-title" class="visually-hidden">Lab topology</h2>
-      <ol class="pipeline">
-        <li><span class="node intake" aria-hidden="true"></span><div><strong>Synthetic fixtures</strong><small>Prepared inputs</small></div></li>
-        <li><span class="node worker" aria-hidden="true"></span><div><strong>Isolated workers</strong><small>Offline scans</small></div></li>
-        <li><span class="node evidence" aria-hidden="true"></span><div><strong>Reviewed evidence</strong><small>Public output</small></div></li>
-      </ol>
-      <p class="topology-note">Execution and monitoring stay inside the private lab.</p>
-    </section>
-  </header>
-
-  <div class="workspace-grid">
-    <section id="evidence" class="panel report" aria-labelledby="evidence-title">
-      <div class="section-head"><span class="kicker">Experiment record</span><span class="label">Read only</span></div>
-      <div class="report-content">
-        <h2 id="evidence-title">Git history secret detection</h2>
-        <p class="lead">Can a scanner recover a synthetic secret after it has been removed from the current files?</p>
-        <dl class="instrument">
-          <div><dt>Scanner</dt><dd>Gitleaks <small>8.30.1</small></dd></div>
-          <div><dt>Worker runs</dt><dd>2</dd></div>
-          <div><dt>Checks matched</dt><dd>8 <small>/ 8</small></dd></div>
-        </dl>
-        <h3 class="kicker">Observed findings</h3>
-        <div class="scroll" tabindex="0" role="region" aria-label="Finding counts comparison">
-          <table><caption class="visually-hidden">Finding counts by sample, scan scope and worker run</caption><thead><tr><th scope="col">Sample</th><th scope="col">Scan scope</th><th scope="col">Expected</th><th scope="col">Run 1</th><th scope="col">Run 2</th></tr></thead><tbody><tr><th scope="row">Removed marker</th><td>Current files</td><td>0</td><td>0</td><td>0</td></tr><tr><th scope="row">Removed marker</th><td>Git history</td><td>1</td><td>1</td><td>1</td></tr><tr><th scope="row">Clean control</th><td>Current files</td><td>0</td><td>0</td><td>0</td></tr><tr><th scope="row">Clean control</th><td>Git history</td><td>0</td><td>0</td><td>0</td></tr></tbody></table>
-        </div>
-        <p class="finding">8 of 8 observations matched the expected counts. Git history preserved the marker after the working tree was clean.</p>
-        <details class="disclosure" id="method"><summary>Reproduction method</summary><div class="inside">
-          <ol class="method-list"><li>Create two disposable repositories. Commit an inert marker in one and ordinary text in the other, then replace both files with identical clean text.</li><li>Run Gitleaks with the same pinned rule on the current files and on the complete Git history. Redact the matched value in both modes.</li><li>Repeat in a fresh worker and compare each count with its expected value. This measures one rule and two scan scopes.</li></ol>
-          <a href="https://github.com/nicolasgioanni/cyber-lab-research/tree/main/experiment">View the experiment source on GitHub</a>
-        </div></details>
-        <details class="disclosure" id="results"><summary>Run artifacts</summary><div class="inside"><p>Measured 2026-11-23 UTC. Each measurement ran in a fresh ARM64 Linux VM using two new Git repositories. <a href="data/worker-1.json">Run 1 JSON</a> <a href="data/worker-2.json">Run 2 JSON</a></p></div></details>
+    <figure class="architecture" aria-label="Isolated scanning environment. Synthetic inputs run on disposable Linux workers. Only reviewed evidence enters the public workspace.">
+      <div class="arch-canvas" aria-hidden="true"><div class="callout left">Synthetic inputs</div><div class="callout right">Reviewed evidence</div>
+        <div class="rack"><i></i><i></i><i></i></div>
       </div>
+      <figcaption><span class="chip-icon" aria-hidden="true"></span>Isolated Linux workers</figcaption>
+    </figure>
+  </section>
+  <div class="workspace-grid">
+    <section class="surface tool-panel" id="tooling" aria-labelledby="tools-title">
+      <div class="panel-heading"><span class="section-icon scanner-icon" aria-hidden="true"></span><h2 id="tools-title">Scanner toolchain</h2></div>
+      <p class="panel-intro">Four scanners run on demand in disposable workers on the lab Mac.</p>
+      <dl class="tool-rows">
+        <div><dt>OSV-Scanner</dt><dd>Dependency advisories</dd></div>
+        <div><dt>Semgrep CE</dt><dd>Source code rules</dd></div>
+        <div><dt>Gitleaks</dt><dd>Secrets in Git history</dd></div>
+        <div><dt>Trivy</dt><dd>Configuration and software inventory</dd></div>
+      </dl>
     </section>
-
-    <aside class="sidebar" aria-label="Lab resources">
-      <section class="panel toolchain" id="toolchain" aria-labelledby="toolchain-title">
-        <div class="section-head"><span class="kicker">Private environment</span></div>
-        <div class="side-content"><h2 id="toolchain-title">Detection toolchain</h2>
-          <dl class="tool-list">
-            <div><dt>OSV-Scanner</dt><dd>Dependency advisories</dd></div>
-            <div><dt>Semgrep CE</dt><dd>Source code rules</dd></div>
-            <div><dt>Gitleaks</dt><dd>Secrets in Git history</dd></div>
-            <div><dt>Trivy</dt><dd>Configuration checks and SBOMs</dd></div>
-            <div><dt>Wazuh</dt><dd>Synthetic authentication alerts</dd></div>
-          </dl>
-        </div>
-      </section>
-      <section class="panel operator" id="operator" aria-labelledby="operator-title">
-        <div class="section-head"><span class="kicker">Access control</span><span class="label">Local only</span></div>
-        <div class="side-content"><h2 id="operator-title">Operator sign-in</h2>
-          <p>The owner uses a one-time code issued on the lab Mac. Scanner jobs, alerts and visitor records are restricted to the operator.</p>
-          <details class="operator-instructions"><summary>Sign in on the lab Mac</summary><div class="inside"><p>In the private repository, generate a single-use code. It expires after five minutes.</p><code>python3 -m console.login</code><p>Enter the code at this address on the same Mac for a one-hour session.</p><code>http://127.0.0.1:8765/</code></div></details>
-          <p class="operator-status"><span class="lock-small" aria-hidden="true"></span>Remote sign-in is offline</p>
-        </div>
-      </section>
-    </aside>
+    <section class="surface monitoring-panel" aria-labelledby="monitoring-title">
+      <div class="panel-heading"><span class="section-icon monitoring-icon" aria-hidden="true"></span><h2 id="monitoring-title">Security monitoring</h2></div>
+      <div class="service"><div><h3>Cloudflare</h3><span>Public edge</span></div><p>Managed Challenge screens incoming traffic. Admission and page-access events go to the operator’s D1 log.</p></div>
+      <div class="service"><div><h3>Wazuh</h3><span>Private VM</span></div><p>The Mac hosts the lab’s authentication-event monitor. Its current health and detection results are available in the operator console.</p></div>
+    </section>
+    <section class="surface study-panel" id="evidence" aria-labelledby="study-title">
+      <div class="section-label"><span class="signal" aria-hidden="true"></span> Published experiment</div>
+      <h2 id="study-title">Git history secret detection</h2>
+      <p class="study-intro">Gitleaks 8.30.1 scanned the current files and Git history after a synthetic secret was removed.</p>
+      <div class="study-stats"><div><strong>8<small>/8</small></strong><span>Observations matched</span></div><div><strong>2</strong><span>Fresh worker runs</span></div></div>
+      <details class="study-details"><summary>Measurements and evidence</summary><div class="details-body">
+        <div class="table-scroll" role="region" aria-label="Measured finding counts" tabindex="0"><table><caption class="sr-only">Expected and observed finding counts</caption><thead><tr><th scope="col">Sample</th><th scope="col">Scan</th><th scope="col">Expected</th><th scope="col">Run 1</th><th scope="col">Run 2</th></tr></thead><tbody><tr><th scope="row">Removed marker</th><td>Current files</td><td>0</td><td>0</td><td>0</td></tr><tr><th scope="row">Removed marker</th><td>Git history</td><td>1</td><td>1</td><td>1</td></tr><tr><th scope="row">Clean control</th><td>Current files</td><td>0</td><td>0</td><td>0</td></tr><tr><th scope="row">Clean control</th><td>Git history</td><td>0</td><td>0</td><td>0</td></tr></tbody></table></div>
+        <p>8 of 8 observations matched the expected counts. Git history preserved the marker after the working tree was clean.</p><p>Measured 2026-11-23 UTC. Each measurement ran in a fresh ARM64 Linux VM using two new Git repositories. <a href="data/worker-1.json">Run 1 JSON</a> <a href="data/worker-2.json">Run 2 JSON</a></p><a href="https://github.com/nicolasgioanni/cyber-lab-research/tree/main/experiment">Reproduction source on GitHub</a>
+      </div></details>
+    </section>
+    <section class="surface operator-panel" id="operator" aria-labelledby="operator-title">
+      <div class="panel-heading"><span class="section-icon operator-icon" aria-hidden="true"></span><h2 id="operator-title">Operator access</h2></div>
+      <p class="panel-intro">The private console on the lab Mac shows run history, Wazuh health and links to the owner’s Cloudflare event views.</p>
+      <details class="operator-details"><summary>Sign in on the lab Mac</summary><div class="details-body"><p>From the private checkout, generate a five-minute, single-use code.</p><code>python3 -m console.login</code><p>Enter the code on this Mac to open a one-hour operator session.</p><code>http://127.0.0.1:8765/</code></div></details>
+    </section>
   </div>
-  <nav class="session-bar" aria-label="Visitor session"><a href="/entry">Review access notice</a><form action="/access/leave" method="post"><button type="submit">End visitor session</button></form></nav>
 </main>
-<footer><span>Nicolas Gioanni · Personal cyber research</span><a href="https://nicolasmgioanni.dev/research">Portfolio research</a></footer>
-</body></html>
+<footer class="site-footer"><span>Cyber Lab</span><nav aria-label="Visitor session"><a href="/entry">Access notice</a><form action="/access/leave" method="post"><button type="submit">End visitor session</button></form></nav></footer>
+
+</body>
+</html>

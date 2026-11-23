@@ -1,4 +1,5 @@
 import { test, before, after } from 'node:test';
+import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -38,10 +39,11 @@ function sql(env, query, ...params) { return env.LAB_EVENTS.engine.prepare(query
 test('build contains only a maintenance document, cosmetics, and the protected Worker', () => {
   assert.equal(existsSync(join(runtime,'index.html')),false);
   assert.equal(existsSync(join(runtime,'entry.html')),false);
+  assert.equal(existsSync(join(runtime,'exit.html')),false);
   assert.equal(existsSync(join(runtime,'data')),false);
   assert.deepEqual(JSON.parse(readFileSync(join(runtime,'_routes.json'))),{version:1,include:['/*'],exclude:[]});
   assert.match(readFileSync(join(runtime,'404.html'),'utf8'),/unavailable/);
-  assert.ok(readdirSync(join(runtime,'assets')).includes('portfolio-tokens.css'));
+  assert.ok(readdirSync(join(runtime,'assets')).some(name => /^portfolio-tokens\.[a-f0-9]{16}\.css$/.test(name)));
 });
 test('notice grants admit one session; duplicate or cross-origin acceptance cannot transition it', async () => {
   const e=env();
@@ -71,9 +73,11 @@ test('notice grants admit one session; duplicate or cross-origin acceptance cann
   const edited=c.slice(0,-1)+(c.endsWith('0')?'1':'0');
   assert.equal((await call(e,'/',{cookie:edited})).status,303);
   assert.equal((await call(e,'/',{cookie:c+'; '+c})).status,303);
+  assert.equal((await call(e,'/exit',{cookie:c})).headers.get('Location'),'/');
+  assert.equal((await call(e,'/',{cookie:c})).status,200);
   const departed=await call(e,'/access/leave',{method:'POST',cookie:c});
   assert.match(departed.headers.get('Set-Cookie'),/Max-Age=0$/);
-  assert.equal(departed.headers.get('Location'),'https://nicolasmgioanni.dev/');
+  assert.equal(departed.headers.get('Location'),'/exit');
   assert.equal((await call(e,'/',{cookie:c})).status,303);
   const events=sql(e,'SELECT * FROM access_events');
   for (const event of ['notice','accepted','workspace','evidence','session_ended']) assert.ok(events.some(i=>i.event===event));
@@ -85,6 +89,11 @@ test('decline revokes grant, expired grants fail, hostname aliases redirect, una
   const c=jar(await call(e,'/entry'));
   const r=await call(e,'/access/decline',{method:'POST',cookie:c});
   assert.match(r.headers.get('Set-Cookie'),/Max-Age=0/);
+  assert.equal(r.headers.get('Location'),'/exit');
+  const exit=await call({},'/exit');
+  assert.equal(exit.status,200);
+  assert.equal(exit.headers.get('Set-Cookie'),null);
+  assert.match(await exit.text(), /href="\/entry"/);
   assert.equal((await call(e,'/access/accept',{method:'POST',cookie:c})).status,403);
   const c2=jar(await call(e,'/entry'));
   e.LAB_EVENTS.engine.exec('UPDATE admission_grants SET expires=0');
@@ -133,4 +142,35 @@ test('retention worker deletes expired records without traffic and data is bound
   db.exec("INSERT INTO access_events(id,at,event,path) VALUES(25005,unixepoch(),'workspace','/')");
   await call(e,'/');
   assert.equal(sql(e,'SELECT * FROM access_events WHERE id=1').length,0);
+});
+
+test('entry aliases and signed-out page use deploy-specific style, script, logo, and font URLs', async () => {
+  const e = env();
+  const assets = readdirSync(join(runtime, 'assets'));
+  for (const path of ['/entry', '/entry/', '/entry.html', '/exit']) {
+    const html = await (await call(e, path)).text();
+    const urls = [...html.matchAll(/(?:href|src)=["'](\/assets\/[^"']+)["']/g)].map(m => m[1]);
+    assert.ok(urls.some(url => url.endsWith('.css')));
+    assert.ok(urls.some(url => url.endsWith('.js')));
+    for (const url of urls) {
+      const name = url.split('/').at(-1);
+      assert.ok(assets.includes(name), url);
+      const data = readFileSync(join(runtime, 'assets', name));
+      const hash = createHash('sha256').update(data).digest('hex').slice(0, 16);
+      assert.ok(name.includes('.' + hash + '.'), name);
+      const request = await call(e, url);
+      assert.equal(request.status, 200);
+      assert.match(request.headers.get('Cache-Control'), /immutable/);
+      if (name.endsWith('.css')) {
+        for (const match of data.toString().matchAll(/url\("\/assets\/([^"]+)"\)/g)) {
+          assert.ok(assets.includes(match[1]));
+          assert.match(match[1], /\.[a-f0-9]{16}\./);
+        }
+      }
+    }
+  }
+  const redirects = await Promise.all(['/assets/study.css', '/assets/study.0000000000000000.css'].map(url => call(e, url)));
+  assert.equal(redirects[0].status, 303);
+  assert.match(redirects[0].headers.get('Cache-Control'), /no-store/);
+  assert.equal(redirects[0].headers.get('Location'), redirects[1].headers.get('Location'));
 });

@@ -1,4 +1,4 @@
-# Nicolas Gioanni’s Cyber Research Lab
+# Cyber Lab
 
 This repository contains the public research site and the self-contained experiments behind its findings. The first study compares Gitleaks directory and Git-history scans of an inert marker that was committed and then removed. A second repository with ordinary text provides the negative control.
 
@@ -28,7 +28,7 @@ The runner checks the scanner version, writes a count for each sample and scan m
 
 ## Build and verify the lab
 
-The public workspace and the monitored-access notice use the portfolio shell. The build packs the workspace, notice and evidence into a Cloudflare Pages Worker. Only the presentation assets and an unavailable page are in the static fallback.
+The public workspace, entry dialog and exit page share the lab’s own header and light and dark themes. The build gives presentation assets content-based names and packs the workspace, entry, exit and evidence into a Cloudflare Pages Worker. The static fallback serves presentation assets and an unavailable page.
 
 ```sh
 python3 build.py

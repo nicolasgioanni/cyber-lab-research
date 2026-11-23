@@ -22,5 +22,5 @@ jobs:
           python3 experiment/run.py --gitleaks "$RUNNER_TEMP/gitleaks" --output "$RUNNER_TEMP/findings.json"
           python3 -m json.tool "$RUNNER_TEMP/findings.json"
           python3 build.py
-          git diff --exit-code -- site/index.html site/entry.html
+          git diff --exit-code -- site/index.html site/entry.html site/exit.html
           node --test edge/test.mjs

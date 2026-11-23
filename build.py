@@ -27,11 +27,19 @@ def load_measurement(path):
     return data
 
 
-def render_page(source, destination, title, description, values):
+def render_page(source, destination, title, description, values, kind):
     shell = (ROOT / 'shell.html').read_text()
     content = (ROOT / source).read_text().rstrip()
     page = shell.replace('{{MAIN}}', content)
-    for key, value in dict(values, TITLE=title, DESCRIPTION=description, REPO=REPO).items():
+    is_entry = kind == 'entry'
+    footer = ('<nav aria-label="Visitor session"><a href="/entry">Access notice</a>'
+              '<form action="/access/leave" method="post"><button type="submit">End visitor session</button></form></nav>'
+              if kind == 'workspace' else '<span class="host">lab.nicolasmgioanni.dev</span>')
+    layout = dict(TITLE=title, DESCRIPTION=description, REPO=REPO, PAGE_CLASS=kind + '-page',
+                  FOOTER=footer, DIALOG_CLOSE='</dialog>' if is_entry else '',
+                  DIALOG_OPEN=('<dialog id="visitor-dialog" aria-labelledby="notice-title" '
+                               'aria-describedby="notice-intro" closedby="none" open>') if is_entry else '')
+    for key, value in dict(values, **layout).items():
         page = page.replace('{{' + key + '}}', value)
     (SITE / destination).write_text(page)
 
@@ -58,10 +66,12 @@ def render():
         note = 'Measurements will appear here after review.'
     values = dict(HEADERS=headers, ROWS=''.join(rows), VERDICT=verdict, NOTE=note,
                   RUN_COUNT=str(len(runs)), MATCHED=str(matched), OBSERVATIONS=str(observations))
-    render_page('template.html', 'index.html', 'Cyber Defense Lab',
-                'Public defensive scanner measurements and reproducible experiments.', values)
+    render_page('template.html', 'index.html', 'Defense operations',
+                'Defensive tools, private monitoring and reproducible scanner evidence.', values, 'workspace')
     render_page('entry-template.html', 'entry.html', 'Lab access notice',
-                'Review visitor permissions, security monitoring and session handling.', {})
+                'Review visitor permissions, security monitoring and session handling.', {}, 'entry')
+    render_page('exit-template.html', 'exit.html', 'Session closed',
+                'Your Cyber Lab visitor session is closed.', {}, 'closed')
 
 
 if __name__ == '__main__':

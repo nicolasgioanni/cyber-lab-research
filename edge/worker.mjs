@@ -1,17 +1,16 @@
 // The packager injects reviewed documents and schema into this module, never the static fallback.
 const DOCUMENTS = /* PACK:DOCUMENTS */ null;
 const SCHEMA = /* PACK:SCHEMA */ null;
-const COSMETICS = /* PACK:COSMETICS */ null;
+const ASSET_URLS = /* PACK:ASSETS */ null;
 const HOST = 'lab.nicolasmgioanni.dev';
 const ORIGIN = 'https://' + HOST;
-const PORTFOLIO = 'https://nicolasmgioanni.dev/';
 const COOKIE = '__Host-lab_access';
 const WEEK = 7 * 86400;
 const TEN_MINUTES = 600;
 const HOUR = 3600;
 const text = new TextEncoder();
-const CSP = "default-src 'none'; style-src 'self'; script-src 'self'; font-src 'self'; img-src 'self'; connect-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self' https://nicolasmgioanni.dev";
-const CHALLENGE_CSP = "default-src 'none'; style-src 'self'; font-src 'self'; script-src https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'none'; form-action 'self' https://nicolasmgioanni.dev";
+const CSP = "default-src 'none'; style-src 'self'; script-src 'self'; font-src 'self'; img-src 'self'; connect-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
+const CHALLENGE_CSP = "default-src 'none'; style-src 'self'; font-src 'self'; script-src https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
 const dbKeys = new WeakMap();
 
 function response(body, status = 200, extra = {}) {
@@ -117,7 +116,26 @@ function documentResponse(path, method, setCookie) {
     { 'Content-Type': type + '; charset=utf-8', ...(setCookie ? { 'Set-Cookie': setCookie } : {}) });
 }
 function challenge(sitekey, head) {
-  const html = '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connection verification · Cyber Research Lab</title><link rel="stylesheet" href="/assets/portfolio-tokens.css"><link rel="stylesheet" href="/assets/study.css"><script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script><main><section class="challenge panel"><h1>Verify your connection</h1><p>Cloudflare screens requests before the lab presents its access notice. Connection metadata is processed for security.</p><form method="post" action="/access/verify"><div class="cf-turnstile" data-sitekey="' + sitekey + '" data-action="lab_admission"></div><button class="button primary" type="submit">Continue to access notice</button></form><p><a class="challenge-return" href="' + PORTFOLIO + '">Return to portfolio</a></p></section></main></html>';
+  const html = `<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Connection verification · Cyber Lab</title>
+  <link rel="stylesheet" href="${ASSET_URLS['/assets/portfolio-tokens.css']}">
+  <link rel="stylesheet" href="${ASSET_URLS['/assets/study.css']}">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</head>
+<body>
+  <main class="entry-stage"><section class="access-card">
+    <h1>Verify your connection</h1>
+    <p>Cloudflare checks your browser before the lab opens its access notice.</p>
+    <form method="post" action="/access/verify">
+      <div class="cf-turnstile" data-sitekey="${sitekey}" data-action="lab_admission"></div>
+      <button class="button primary" type="submit">Continue to access notice</button>
+    </form>
+    <p><a href="/exit">Leave the lab</a></p>
+  </section></main>
+</body></html>`;
   return response(head ? null : html, 200, { 'Content-Type': 'text/html; charset=utf-8', 'Content-Security-Policy': CHALLENGE_CSP });
 }
 async function formToken(request) {
@@ -153,7 +171,23 @@ async function serve(request, env, fetcher) {
   const method = request.method;
   const path = url.pathname;
   if (url.origin !== ORIGIN) return method === 'GET' || method === 'HEAD' ? redirect(ORIGIN + '/') : response('Forbidden', 403);
-  if (COSMETICS.includes(path) && (method === 'GET' || method === 'HEAD')) return env.ASSETS.fetch(request);
+  if (method === 'GET' || method === 'HEAD') {
+    // Old bookmarks or in-flight HTML may request a previous content hash.
+    // Redirect without caching that redirect; only exact immutable bytes get a long cache lifetime.
+    const source = path.replace(/\.[0-9a-f]{16}(?=\.[^./]+$)/, '');
+    if (Object.hasOwn(ASSET_URLS, source)) {
+      const current = ASSET_URLS[source];
+      if (path !== current) return redirect(current);
+      const result = await env.ASSETS.fetch(request);
+      if (!result.ok || path === source) return result;
+      const headers = new Headers(result.headers);
+      headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+      return new Response(result.body, { status: result.status, headers });
+    }
+    if (path === '/exit' && !(request.headers.get('Cookie') || '').split(';').some(c => c.trim().startsWith(COOKIE + '='))) {
+      return documentResponse('/exit', method);
+    }
+  }
   const posts = ['/access/accept', '/access/decline', '/access/leave', '/access/verify'];
   const mode = env.BOT_CONTROL;
   const turnstile = mode === 'turnstile';
@@ -174,11 +208,12 @@ async function serve(request, env, fetcher) {
       (request.headers.has('Sec-Fetch-Site') && request.headers.get('Sec-Fetch-Site') !== 'same-origin')))
     return deny('Forbidden', 403);
   const grant = await readGrant(request, db, key, now);
+  if (path === '/exit') return grant?.stage === 'accepted' ? redirect('/') : documentResponse('/exit', method);
   if (path === '/access/leave' || path === '/access/decline') {
     const event = path.endsWith('leave') || grant?.stage === 'accepted' ? 'session_ended' : 'declined';
     const statements = grant ? [db.prepare('DELETE FROM admission_grants WHERE digest=?').bind(grant.digest)] : [];
     await db.batch([...statements, eventStatement(db, request, event, path, now), ...maintenance(db, now)]);
-    return redirect(PORTFOLIO, cookie('', 0));
+    return redirect('/exit', cookie('', 0));
   }
   if (path === '/access/verify') {
     if (!turnstile) return deny('Not found', 404);

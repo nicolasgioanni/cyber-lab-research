@@ -1,37 +1,35 @@
 (() => {
-  const savedKey = 'portfolio-theme';
-  const options = new Set(['system', 'light', 'navy', 'dark']);
-  const system = window.matchMedia('(prefers-color-scheme: dark)');
-  let selected = 'system';
+  const preferenceKey = 'cyber-lab-color-mode';
+  let mode = 'dark';
   try {
-    const saved = localStorage.getItem(savedKey);
-    if (options.has(saved)) selected = saved;
-  } catch { /* A preference still works for this page with storage disabled. */ }
-  function apply() {
-    document.documentElement.dataset.theme = selected === 'system'
-      ? (system.matches ? 'dark' : 'light') : selected;
-  }
-  apply();
-  system.addEventListener('change', apply);
+    if (localStorage.getItem(preferenceKey) === 'light') mode = 'light';
+  } catch { /* Storage is optional. */ }
+  document.documentElement.dataset.theme = mode;
+
   document.addEventListener('DOMContentLoaded', () => {
-    const menu = document.querySelector('#appearance');
-    const toggle = menu.querySelector('summary');
-    menu.hidden = false;
-    for (const radio of menu.querySelectorAll('input')) {
-      radio.checked = radio.value === selected;
-      radio.addEventListener('change', () => {
-        selected = radio.value;
-        apply();
-        try { localStorage.setItem(savedKey, selected); } catch { /* Optional storage. */ }
-        menu.open = false;
-        toggle.focus();
-      });
+    const picker = document.querySelector('.theme-picker');
+    if (picker) {
+      picker.hidden = false;
+      const options = picker.querySelectorAll('input');
+      for (const option of options) {
+        option.checked = option.value === mode;
+        option.addEventListener('change', () => {
+          if (!option.checked) return;
+          mode = option.value;
+          document.documentElement.dataset.theme = mode;
+          try { localStorage.setItem(preferenceKey, mode); } catch { /* Storage is optional. */ }
+        });
+      }
     }
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && menu.open) { menu.open = false; toggle.focus(); }
-    });
-    document.addEventListener('click', event => {
-      if (!menu.contains(event.target)) menu.open = false;
-    });
+
+    const dialog = document.querySelector('#visitor-dialog');
+    if (!dialog || typeof dialog.showModal !== 'function') return;
+    dialog.addEventListener('cancel', event => event.preventDefault());
+    dialog.removeAttribute('open');
+    try {
+      dialog.showModal();
+    } catch {
+      dialog.setAttribute('open', '');
+    }
   });
 })();

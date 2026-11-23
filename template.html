@@ -1,69 +1,47 @@
 <main id="main" class="workspace">
-  <header class="panel hero">
-    <div class="hero-content">
-      <div class="eyebrow"><span class="ring" aria-hidden="true"></span>Public workspace</div>
-      <h1>Cyber Defense Lab</h1>
-      <p>Inspect defensive controls, compare scanner output, and reproduce experiments from isolated Linux workers.</p>
-      <div class="hero-actions"><a class="button primary" href="#evidence">Inspect run evidence</a><a class="button" href="#operator">Operator access</a></div>
+  <section class="hero" aria-labelledby="workspace-title">
+    <div class="hero-copy"><div class="eyebrow"><span class="signal" aria-hidden="true"></span>Public workspace</div>
+      <h1 id="workspace-title">Defense operations</h1>
+      <p>Inspect the lab’s defensive tooling, monitoring boundaries and published scanner evidence.</p>
+      <div class="hero-actions"><a class="primary" href="#tooling">Inspect tooling</a><a class="secondary" href="#operator">Operator access</a></div>
     </div>
-    <section class="topology" aria-labelledby="environment-title">
-      <div class="topology-title"><span class="kicker">Lab topology</span><span class="mono">ENV / LOCAL</span></div>
-      <h2 id="environment-title" class="visually-hidden">Lab topology</h2>
-      <ol class="pipeline">
-        <li><span class="node intake" aria-hidden="true"></span><div><strong>Synthetic fixtures</strong><small>Prepared inputs</small></div></li>
-        <li><span class="node worker" aria-hidden="true"></span><div><strong>Isolated workers</strong><small>Offline scans</small></div></li>
-        <li><span class="node evidence" aria-hidden="true"></span><div><strong>Reviewed evidence</strong><small>Public output</small></div></li>
-      </ol>
-      <p class="topology-note">Execution and monitoring stay inside the private lab.</p>
-    </section>
-  </header>
-
-  <div class="workspace-grid">
-    <section id="evidence" class="panel report" aria-labelledby="evidence-title">
-      <div class="section-head"><span class="kicker">Experiment record</span><span class="label">Read only</span></div>
-      <div class="report-content">
-        <h2 id="evidence-title">Git history secret detection</h2>
-        <p class="lead">Can a scanner recover a synthetic secret after it has been removed from the current files?</p>
-        <dl class="instrument">
-          <div><dt>Scanner</dt><dd>Gitleaks <small>8.30.1</small></dd></div>
-          <div><dt>Worker runs</dt><dd>{{RUN_COUNT}}</dd></div>
-          <div><dt>Checks matched</dt><dd>{{MATCHED}} <small>/ {{OBSERVATIONS}}</small></dd></div>
-        </dl>
-        <h3 class="kicker">Observed findings</h3>
-        <div class="scroll" tabindex="0" role="region" aria-label="Finding counts comparison">
-          <table><caption class="visually-hidden">Finding counts by sample, scan scope and worker run</caption><thead><tr><th scope="col">Sample</th><th scope="col">Scan scope</th><th scope="col">Expected</th>{{HEADERS}}</tr></thead><tbody>{{ROWS}}</tbody></table>
-        </div>
-        <p class="finding">{{VERDICT}}</p>
-        <details class="disclosure" id="method"><summary>Reproduction method</summary><div class="inside">
-          <ol class="method-list"><li>Create two disposable repositories. Commit an inert marker in one and ordinary text in the other, then replace both files with identical clean text.</li><li>Run Gitleaks with the same pinned rule on the current files and on the complete Git history. Redact the matched value in both modes.</li><li>Repeat in a fresh worker and compare each count with its expected value. This measures one rule and two scan scopes.</li></ol>
-          <a href="{{REPO}}/tree/main/experiment">View the experiment source on GitHub</a>
-        </div></details>
-        <details class="disclosure" id="results"><summary>Run artifacts</summary><div class="inside"><p>{{NOTE}}</p></div></details>
+    <figure class="architecture" aria-label="Isolated scanning environment. Synthetic inputs run on disposable Linux workers. Only reviewed evidence enters the public workspace.">
+      <div class="arch-canvas" aria-hidden="true"><div class="callout left">Synthetic inputs</div><div class="callout right">Reviewed evidence</div>
+        <div class="rack"><i></i><i></i><i></i></div>
       </div>
+      <figcaption><span class="chip-icon" aria-hidden="true"></span>Isolated Linux workers</figcaption>
+    </figure>
+  </section>
+  <div class="workspace-grid">
+    <section class="surface tool-panel" id="tooling" aria-labelledby="tools-title">
+      <div class="panel-heading"><span class="section-icon scanner-icon" aria-hidden="true"></span><h2 id="tools-title">Scanner toolchain</h2></div>
+      <p class="panel-intro">Four scanners run on demand in disposable workers on the lab Mac.</p>
+      <dl class="tool-rows">
+        <div><dt>OSV-Scanner</dt><dd>Dependency advisories</dd></div>
+        <div><dt>Semgrep CE</dt><dd>Source code rules</dd></div>
+        <div><dt>Gitleaks</dt><dd>Secrets in Git history</dd></div>
+        <div><dt>Trivy</dt><dd>Configuration and software inventory</dd></div>
+      </dl>
     </section>
-
-    <aside class="sidebar" aria-label="Lab resources">
-      <section class="panel toolchain" id="toolchain" aria-labelledby="toolchain-title">
-        <div class="section-head"><span class="kicker">Private environment</span></div>
-        <div class="side-content"><h2 id="toolchain-title">Detection toolchain</h2>
-          <dl class="tool-list">
-            <div><dt>OSV-Scanner</dt><dd>Dependency advisories</dd></div>
-            <div><dt>Semgrep CE</dt><dd>Source code rules</dd></div>
-            <div><dt>Gitleaks</dt><dd>Secrets in Git history</dd></div>
-            <div><dt>Trivy</dt><dd>Configuration checks and SBOMs</dd></div>
-            <div><dt>Wazuh</dt><dd>Synthetic authentication alerts</dd></div>
-          </dl>
-        </div>
-      </section>
-      <section class="panel operator" id="operator" aria-labelledby="operator-title">
-        <div class="section-head"><span class="kicker">Access control</span><span class="label">Local only</span></div>
-        <div class="side-content"><h2 id="operator-title">Operator sign-in</h2>
-          <p>The owner uses a one-time code issued on the lab Mac. Scanner jobs, alerts and visitor records are restricted to the operator.</p>
-          <details class="operator-instructions"><summary>Sign in on the lab Mac</summary><div class="inside"><p>In the private repository, generate a single-use code. It expires after five minutes.</p><code>python3 -m console.login</code><p>Enter the code at this address on the same Mac for a one-hour session.</p><code>http://127.0.0.1:8765/</code></div></details>
-          <p class="operator-status"><span class="lock-small" aria-hidden="true"></span>Remote sign-in is offline</p>
-        </div>
-      </section>
-    </aside>
+    <section class="surface monitoring-panel" aria-labelledby="monitoring-title">
+      <div class="panel-heading"><span class="section-icon monitoring-icon" aria-hidden="true"></span><h2 id="monitoring-title">Security monitoring</h2></div>
+      <div class="service"><div><h3>Cloudflare</h3><span>Public edge</span></div><p>Managed Challenge screens incoming traffic. Admission and page-access events go to the operator’s D1 log.</p></div>
+      <div class="service"><div><h3>Wazuh</h3><span>Private VM</span></div><p>The Mac hosts the lab’s authentication-event monitor. Its current health and detection results are available in the operator console.</p></div>
+    </section>
+    <section class="surface study-panel" id="evidence" aria-labelledby="study-title">
+      <div class="section-label"><span class="signal" aria-hidden="true"></span> Published experiment</div>
+      <h2 id="study-title">Git history secret detection</h2>
+      <p class="study-intro">Gitleaks 8.30.1 scanned the current files and Git history after a synthetic secret was removed.</p>
+      <div class="study-stats"><div><strong>{{MATCHED}}<small>/{{OBSERVATIONS}}</small></strong><span>Observations matched</span></div><div><strong>{{RUN_COUNT}}</strong><span>Fresh worker runs</span></div></div>
+      <details class="study-details"><summary>Measurements and evidence</summary><div class="details-body">
+        <div class="table-scroll" role="region" aria-label="Measured finding counts" tabindex="0"><table><caption class="sr-only">Expected and observed finding counts</caption><thead><tr><th scope="col">Sample</th><th scope="col">Scan</th><th scope="col">Expected</th>{{HEADERS}}</tr></thead><tbody>{{ROWS}}</tbody></table></div>
+        <p>{{VERDICT}}</p><p>{{NOTE}}</p><a href="{{REPO}}/tree/main/experiment">Reproduction source on GitHub</a>
+      </div></details>
+    </section>
+    <section class="surface operator-panel" id="operator" aria-labelledby="operator-title">
+      <div class="panel-heading"><span class="section-icon operator-icon" aria-hidden="true"></span><h2 id="operator-title">Operator access</h2></div>
+      <p class="panel-intro">The private console on the lab Mac shows run history, Wazuh health and links to the owner’s Cloudflare event views.</p>
+      <details class="operator-details"><summary>Sign in on the lab Mac</summary><div class="details-body"><p>From the private checkout, generate a five-minute, single-use code.</p><code>python3 -m console.login</code><p>Enter the code on this Mac to open a one-hour operator session.</p><code>http://127.0.0.1:8765/</code></div></details>
+    </section>
   </div>
-  <nav class="session-bar" aria-label="Visitor session"><a href="/entry">Review access notice</a><form action="/access/leave" method="post"><button type="submit">End visitor session</button></form></nav>
 </main>
