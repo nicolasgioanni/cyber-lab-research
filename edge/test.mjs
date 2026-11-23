@@ -7,6 +7,7 @@ import {join} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
 import {Database} from './local-db.mjs';
+import {localAdmissionLimiter} from './local-limiter.mjs';
 import prune from './retention.mjs';
 
 const root = fileURLToPath(new URL('../',import.meta.url));
@@ -23,7 +24,7 @@ before(async () => {
 after(() => rmSync(runtime,{force:true,recursive:true}));
 
 function env() {
-  return {BOT_CONTROL:'turnstile',LAB_EVENTS:new Database(),TURNSTILE_SITE_KEY:'public_test_key',TURNSTILE_SECRET_KEY:'fixture-secret',
+  return {BOT_CONTROL:'turnstile',LAB_EVENTS:new Database(),LAB_ADMISSION_LIMITER:localAdmissionLimiter(),TURNSTILE_SITE_KEY:'public_test_key',TURNSTILE_SECRET_KEY:'fixture-secret',
     ASSETS:{fetch:async () => new Response('static design asset')}};
 }
 function call(e,path,opts={}) {
@@ -196,4 +197,39 @@ test('disabled edge or missing database fails closed, with immutable shell asset
   assert.equal(current.headers.get('Location'),stale.headers.get('Location'));
   e.LAB_EVENTS.engine.close();
   assert.equal((await call(e,'/verify')).status,503);
+});
+
+test('only the lab admission POSTs share the per-IP budget before verification or database work', async () => {
+  const e = env();
+  let time = 100000;
+  e.LAB_ADMISSION_LIMITER = localAdmissionLimiter(() => time);
+  const attempts = Array.from({length:20}, (_, i) =>
+    call(e, i % 2 ? '/access/verify' : '/access/accept', {method:'POST'}));
+  const initial = await Promise.all(attempts);
+  assert.ok(initial.every(r => r.status === 403)); // Passed the limiter, then lacked admission proof.
+  const events = () => select(e, 'SELECT count(*) AS n FROM access_events')[0].n;
+  const before = events();
+  for (const path of ['/access/verify', '/access/accept']) {
+    const res = await call(e, path, {method:'POST', headers:{'X-Forwarded-For':'203.0.113.9'}});
+    assert.equal(res.status, 429);
+    assert.equal(res.headers.get('Retry-After'), '10');
+    assert.match(res.headers.get('Cache-Control'), /no-store/);
+  }
+  assert.equal(events(), before);
+  assert.equal((await call(e, '/access/verify', {method:'POST', headers:{'CF-Connecting-IP':'2001:db8::2'}})).status, 403);
+  assert.equal((await call(e, '/verify')).status, 200);
+  assert.equal((await call(e, '/access/decline', {method:'POST'})).status, 204);
+  assert.equal((await call(e, '/access/verify')).status, 405);
+  assert.equal((await call(e, '/access/verify', {method:'POST', otherHost:'https://nicolasmgioanni.dev'})).status, 403);
+  time += 10000;
+  assert.equal((await call(e,'/access/accept', {method:'POST'})).status, 403);
+});
+
+test('a missing or unavailable rate-limit service fails closed only where required', async () => {
+  const e = env();
+  e.LAB_ADMISSION_LIMITER = {fetch:async () => new Response(null,{status:502})};
+  assert.equal((await call(e,'/access/verify',{method:'POST'})).status,503);
+  delete e.LAB_ADMISSION_LIMITER;
+  assert.equal((await call(e,'/access/accept',{method:'POST'})).status,503);
+  assert.equal((await call(e,'/verify')).status,200);
 });

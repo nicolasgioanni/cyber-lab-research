@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Database } from './local-db.mjs';
+import {localAdmissionLimiter} from './local-limiter.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const dir = mkdtempSync(join(tmpdir(), 'lab-preview-'));
@@ -18,7 +19,7 @@ writeFileSync(join(dir,'worker.mjs'),readFileSync(join(dir,'_worker.js'),'utf8')
 const {handle} = await import(pathToFileURL(join(dir,'worker.mjs')));
 const types = {css:'text/css',js:'text/javascript',png:'image/png',woff2:'font/woff2',txt:'text/plain'};
 const env = {BOT_CONTROL:'turnstile',TURNSTILE_SITE_KEY:'1x00000000000000000000AA',
-  TURNSTILE_SECRET_KEY:'local-fixture-only', LAB_EVENTS:new Database(), ASSETS:{
+  TURNSTILE_SECRET_KEY:'local-fixture-only', LAB_EVENTS:new Database(), LAB_ADMISSION_LIMITER:localAdmissionLimiter(), ASSETS:{
     fetch: async request => {
       const path = new URL(request.url).pathname;
       const content = readFileSync(join(dir,path));
@@ -30,7 +31,7 @@ const server = createServer(async (incoming, outgoing) => {
     if (incoming.headers.host !== new URL(local).host) { outgoing.writeHead(403).end(); return; }
     const headers = new Headers(incoming.headers);
     if (headers.get('Origin') === local) headers.set('Origin',canonical);
-    headers.delete('CF-Connecting-IP');
+    headers.set('CF-Connecting-IP','127.0.0.1');
     const opts = {method:incoming.method, headers};
     if (!['GET','HEAD'].includes(incoming.method)) Object.assign(opts,{body:incoming,duplex:'half'});
     const request = new Request(canonical+incoming.url,opts);

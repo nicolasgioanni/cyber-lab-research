@@ -189,12 +189,34 @@ async function decline(db, request, now) {
   await db.batch([...statements, eventStatement(db,request,'declined',DECLINE,now), ...maintenance(db,now)]);
   return response(null, 204, secret ? {'Set-Cookie':cookie(keyId,'')} : {});
 }
+// Both admission POSTs share a budget. Only Cloudflare's edge-supplied address
+// identifies the client; the private limiter receives a digest and no request data.
+async function checkAdmissionRate(request, limiter) {
+  const ip = request.headers.get('CF-Connecting-IP') || '';
+  if (!limiter || !/^[0-9a-f.:]{2,45}$/i.test(ip)) {
+    return response('Lab admission is temporarily unavailable.', 503, {'Retry-After': '10'});
+  }
+  const key = await digest(text.encode(ip.toLowerCase()));
+  const decision = await limiter.fetch('https://lab-limiter.internal/check', {
+    method: 'POST', headers: {'X-Lab-Client': key}, redirect: 'manual'
+  });
+  if (decision.status === 204) return null;
+  if (decision.status === 429) {
+    return response('Too many admission requests. Try again in 10 seconds.', 429, {'Retry-After': '10'});
+  }
+  return response('Lab admission is temporarily unavailable.', 503, {'Retry-After': '10'});
+}
+
 async function serve(request, env, fetcher) {
   const url = new URL(request.url);
   const {method} = request;
   const path = url.pathname;
   const read = method === 'GET' || method === 'HEAD';
   if (url.origin !== ORIGIN) return read ? redirect(ORIGIN + '/verify') : response('Forbidden',403);
+  if (method === 'POST' && (path === VERIFY || path === ACCEPT)) {
+    const limited = await checkAdmissionRate(request, env.LAB_ADMISSION_LIMITER);
+    if (limited) return limited;
+  }
   if (read) {
     // Old documents can request a previous fingerprint; only immutable, current bytes are cached.
     const source = path.replace(/\.[0-9a-f]{16}(?=\.[^./]+$)/, '');

@@ -10,3 +10,7 @@ TURNSTILE_SITE_KEY = "0x4AAAAAAGOFrRaGM9O2dFMS"
 binding = "LAB_EVENTS"
 database_name = "nmg-lab-access"
 database_id = "fa26b102-e4c3-439e-a8f5-860867313e31"
+
+[[env.production.services]]
+binding = "LAB_ADMISSION_LIMITER"
+service = "nmg-lab-admission-limiter"

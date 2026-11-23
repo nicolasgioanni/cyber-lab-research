@@ -23,7 +23,7 @@
     redirect: 'error', referrerPolicy: 'same-origin', signal: AbortSignal.timeout(15000), ...options
   });
 
-  function fail(message) {
+  function fail(message, retryAfterSeconds = 0) {
     if (phase === 'leaving' || phase === 'admitted' || phase === 'failed') return;
     phase = 'failed';
     clearTimeout(timer);
@@ -36,7 +36,26 @@
     dialog.setAttribute('aria-describedby', 'verification-status');
     status.textContent = message;
     retry.hidden = false;
-    retry.focus({preventScroll: true});
+    retry.disabled = retryAfterSeconds > 0;
+    if (retry.disabled) {
+      byId('gate-title').focus({preventScroll: true});
+      timer = setTimeout(() => {
+        retry.disabled = false;
+        status.textContent = 'You can restart verification now.';
+      }, retryAfterSeconds * 1000);
+    } else {
+      retry.focus({preventScroll: true});
+    }
+  }
+
+  function handleRateLimit(result) {
+    if (result.status !== 429) return false;
+    const header = (result.headers.get('Retry-After') || '').trim();
+    const seconds = /^\d+$/.test(header) ? Number(header) : Math.ceil((Date.parse(header) - Date.now()) / 1000);
+    const wait = Number.isFinite(seconds) ? Math.max(0, seconds) : 10;
+    const when = wait > 0 ? `in ${wait} second${wait === 1 ? '' : 's'}` : 'now';
+    fail(`Too many admission requests from this connection. You can restart verification ${when}.`, wait);
+    return true;
   }
   async function verified(token) {
     if (phase !== 'checking') return;
@@ -46,6 +65,7 @@
       const result = await post('/access/verify', {
         headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token, publicKey})
       });
+      if (handleRateLimit(result)) return;
       if (result.headers.get('cf-mitigated') === 'challenge') {
         fail('Cloudflare requested another browser check. Restart verification to continue.');
         return;
@@ -122,6 +142,7 @@
       const result = await post('/access/accept', {headers:{
         'Signature-Input': 'lab=' + params, Signature: 'lab=:' + base64(signature) + ':'
       }});
+      if (handleRateLimit(result)) return;
       if (!result.ok || !result.headers.get('Content-Type')?.startsWith('text/html')) throw Error();
       const html = await result.text();
       if (phase !== 'accepting') return;
