@@ -1,34 +1,57 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="navy" data-scroll-behavior="smooth">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="description" content="Your Cyber Lab visitor session is closed.">
-  <title>Session closed · Cyber Lab</title>
+  <meta name="description" content="Your Research Lab visit has ended.">
+  <title>Session closed · Research Lab</title>
   <link rel="icon" href="/assets/lab-mark.png" type="image/png">
   <link rel="stylesheet" href="/assets/portfolio-tokens.css">
+  <link rel="stylesheet" href="/assets/portfolio.css">
   <link rel="stylesheet" href="/assets/study.css">
   <script src="/assets/theme.js"></script>
 </head>
 <body class="closed-page">
-
-<header class="site-header">
-  <div class="header-inner">
-    <span class="brand"><img src="/assets/lab-mark.png" alt="" width="36" height="36">Cyber Lab</span>
-    <fieldset class="theme-picker" hidden><legend class="sr-only">Color mode</legend>
-      <label><input type="radio" name="theme" value="light"><span class="sun" aria-hidden="true"></span>Light</label>
-      <label><input type="radio" name="theme" value="dark"><span class="moon" aria-hidden="true"></span>Dark</label>
-    </fieldset>
-  </div>
-</header>
-<main id="main" class="closed-stage">
-  <div class="entry-grid" aria-hidden="true"><i></i><i></i><i></i></div>
-  <section class="access-card closed-card">
-    <div class="card-rail"><span class="mini-lock" aria-hidden="true"></span> Visitor access</div>
-    <div class="access-heading"><h1>Session closed</h1><p>Review the access notice to enter the lab again.</p><a class="primary" href="/entry">Return to access notice</a></div>
+<div class="site-shell" data-glass-effects="true">
+  <header class="blob-header" data-header-state="expanded">
+    <div class="glass-blob glass-blob--nav blob-header__island">
+      <div class="site-brand"><span class="site-brand__text"><span class="site-brand__name">Research Lab</span></span></div>
+      <div class="blob-header__actions">
+        <div class="theme-switcher" data-open="false">
+          <button type="button" class="glass-icon-button hover-base-1 hover-base-1--compact theme-switcher__trigger" aria-label="Choose color theme" aria-expanded="false" aria-controls="theme-popover">
+            <svg aria-hidden="true" fill="none" focusable="false" height="18" viewBox="0 0 24 24" width="18"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17v-17Z" fill="currentColor" opacity="0.3"/><path d="M12 3.5v17" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"/></svg>
+          </button>
+          <div class="theme-switcher__popover" id="theme-popover" data-state="closed" aria-hidden="true" inert>
+            <div class="theme-switcher__panel" role="group" aria-label="Color theme preference"><button type="button" class="theme-switcher__option hover-base-1 hover-base-1--compact hover-base-1--inline" data-preference="system" aria-pressed="false"><span>System</span><span class="theme-switcher__option-detail" aria-hidden="true">Auto</span></button><button type="button" class="theme-switcher__option hover-base-1 hover-base-1--compact hover-base-1--inline" data-preference="light" aria-pressed="false"><span>Light</span></button><button type="button" class="theme-switcher__option hover-base-1 hover-base-1--compact hover-base-1--inline" data-preference="navy" aria-pressed="true"><span>My mode</span></button><button type="button" class="theme-switcher__option hover-base-1 hover-base-1--compact hover-base-1--inline" data-preference="dark" aria-pressed="false"><span>Dark</span></button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="site-main" id="main"><div class="page-container">
+  <section class="page-intro page-intro--panel" aria-labelledby="exit-title">
+    <div class="glass-surface glass-surface--strong page-intro__surface">
+      <h1 class="page-title" id="exit-title">Session closed</h1>
+      <p class="page-description">You have left the research lab.</p>
+      <a class="glass-button glass-button--secondary hover-base-1 exit-return" href="/verify">Return to verification</a>
+    </div>
   </section>
-</main>
-<footer class="site-footer"><span>Cyber Lab</span><span class="host">lab.nicolasmgioanni.dev</span></footer>
+</div></main>
+  <footer class="blob-footer blob-footer--compact" data-footer-state="compact">
+    <div class="blob-footer__runway" aria-hidden="true"><span class="blob-footer__runway-sentinel"></span></div>
+    <div class="glass-blob glass-blob--footer blob-footer__island">
+      <div class="blob-footer__compact">
+        <p class="blob-footer__copyright">Research Lab · Nicolas Gioanni</p>
+        <button type="button" class="blob-footer__toggle hover-base-1 hover-base-1--compact" aria-expanded="false" aria-controls="footer-details">Details</button>
+      </div>
+      <div class="blob-footer__details" id="footer-details" inert aria-hidden="true"><div class="blob-footer__details-inner"><div class="blob-footer__details-grid">
+        <section class="blob-footer__identity"><h2 class="blob-footer__owner">Research Lab</h2><p class="blob-footer__description">Independent security research by Nicolas Gioanni.</p></section>
+        <nav class="blob-footer__column" aria-label="Visitor access"><h2 class="blob-footer__heading">Visitor access</h2><ul class="blob-footer__links"><li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/verify">Access notice</a></li></ul></nav>
+
+      </div></div></div>
+    </div>
+  </footer>
+</div>
 
 </body>
 </html>

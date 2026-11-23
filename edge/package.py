@@ -13,7 +13,7 @@ SITE = ROOT / "site"
 # Only files in this list may be served before admission. Dependency order matters:
 # styles reference the fingerprinted font, then HTML references the final styles.
 ASSETS = ("OFL.txt", "portfolio-LICENSE.txt", "lab-mark.png", "space-grotesk-latin.woff2",
-          "theme.js", "portfolio-tokens.css", "study.css")
+          "theme.js", "admission.js", "portfolio-tokens.css", "portfolio.css", "study.css")
 CSS_URL = re.compile(r"""url\(\s*(["']?)([^)'"]+)\1\s*\)""")
 HTML_ASSET = re.compile(r"""(\b(?:href|src)\s*=\s*)(["'])((?:\./|/)?assets/[^"']+)\2""")
 RELEASE_HASH = re.compile(r"\.[0-9a-f]{16}(?=\.[^.]+$)")
@@ -57,6 +57,8 @@ def assets_for_release():
         data = source.read_bytes()
         if source.suffix == ".css":
             def replace_url(match):
+                if match.group(2).strip().startswith("data:"):
+                    return match.group(0)
                 original = urljoin("/assets/" + name, match.group(2).strip())
                 return 'url("' + urls[original] + '")'
             data = CSS_URL.sub(replace_url, data.decode()).encode()
@@ -74,14 +76,8 @@ def package(output):
     asset_urls, files = assets_for_release()
     documents = {route: render_document(SITE / name, asset_urls)
                  for route, name in [("/", "index.html"), ("/entry", "entry.html"), ("/exit", "exit.html")]}
-    for path in sorted((SITE / "data").glob("worker-*.json")):
-        if not re.fullmatch(r"worker-[0-9]+\.json", path.name):
-            raise ValueError(f"Unexpected study file: {path.name}")
-        raw = path.read_text()
-        json.loads(raw)
-        documents["/data/" + path.name] = raw
-    if not any(path.startswith("/data/") for path in documents):
-        raise ValueError("Missing reviewed evidence")
+    if documents["/entry"].count("__TURNSTILE_SITEKEY__") != 1:
+        raise ValueError("Verification page must expose exactly one widget site key placeholder")
 
     output.mkdir(parents=True, exist_ok=True)
     allowed = set(files) | OUTPUT_FILES

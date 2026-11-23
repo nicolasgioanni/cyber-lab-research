@@ -19,3 +19,9 @@ CREATE TABLE IF NOT EXISTS admission_grants (
   expires INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS admission_expires ON admission_grants(expires);
+CREATE TABLE IF NOT EXISTS admission_proofs (
+  grant_digest TEXT PRIMARY KEY REFERENCES admission_grants(digest) ON DELETE CASCADE,
+  key_id TEXT NOT NULL UNIQUE,
+  public_key TEXT NOT NULL,
+  nonce TEXT NOT NULL
+);

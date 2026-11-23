@@ -3,7 +3,8 @@ pages_build_output_dir = "./dist"
 compatibility_date = "2026-11-01"
 
 [env.production.vars]
-BOT_CONTROL = "managed_challenge"
+BOT_CONTROL = "turnstile"
+TURNSTILE_SITE_KEY = "0x4AAAAAAGOFrRaGM9O2dFMS"
 
 [[env.production.d1_databases]]
 binding = "LAB_EVENTS"

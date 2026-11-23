@@ -1,4 +1,4 @@
-# Cyber Lab
+# Research Lab
 
 This repository contains the public research site and the self-contained experiments behind its findings. The first study compares Gitleaks directory and Git-history scans of an inert marker that was committed and then removed. A second repository with ordinary text provides the negative control.
 
@@ -26,16 +26,16 @@ python3 -m json.tool .local/findings.json
 
 The runner checks the scanner version, writes a count for each sample and scan mode, and exits unsuccessfully on a count mismatch or scanner error. Reports containing raw marker text fail validation. The public CI workflow repeats the experiment with a checksum-pinned Linux binary.
 
-## Build and verify the lab
+## Research site
 
-The public workspace, entry dialog and exit page share the lab’s own header and light and dark themes. The build gives presentation assets content-based names and packs the workspace, entry, exit and evidence into a Cloudflare Pages Worker. The static fallback serves presentation assets and an unavailable page.
+Open the [Research Lab](https://lab.nicolasmgioanni.dev/) to read the study. The entry document runs a visible, automatic Cloudflare Turnstile check and presents the access notice. Acceptance opens the reviewed research in the same page. Refreshing or opening another tab starts a new visit.
+
+The page uses the original Smart-Porfolio shell, research layout, skill dialog, Space Grotesk type, themes and motion. The vendored CSS modules are annotated with their original filenames and distributed under the accompanying MIT license. The build fingerprints the public presentation assets. [Portfolio source](https://github.com/nicolasgioanni/Smart-Porfolio/tree/de48df2f857656d04f217d4f0e87f816cbfeba4a/src)
+
+Build the rendered documents with Python 3.9 or newer, then run the package and admission tests with Node 22.13 or later.
 
 ```sh
 python3 build.py
 python3 edge/package.py
 node --test edge/test.mjs
 ```
-
-Use Node 22.13 or later for the SQLite-backed admission tests. Cloudflare Pages builds the production branch `main` with `python3 build.py && python3 edge/package.py` and publishes `dist`. The production binding `LAB_EVENTS` points to the lab's dedicated D1 database. The hostname-specific firewall rule applies a Managed Challenge before the Worker opens the notice. The production Pages alias redirects to the custom domain.
-
-Visitors can review published measurements after acknowledging the monitoring notice. The lab journals categorized security events and uses an essential first-party cookie for admission. The private operator console has a separate sign-in on the owner’s Mac. The public Git history contains the published study and its reproducible fixtures. [Open the lab](https://lab.nicolasmgioanni.dev/)

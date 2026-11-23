@@ -30,18 +30,24 @@ def load_measurement(path):
 def render_page(source, destination, title, description, values, kind):
     shell = (ROOT / 'shell.html').read_text()
     content = (ROOT / source).read_text().rstrip()
-    page = shell.replace('{{MAIN}}', content)
     is_entry = kind == 'entry'
-    footer = ('<nav aria-label="Visitor session"><a href="/entry">Access notice</a>'
-              '<form action="/access/leave" method="post"><button type="submit">End visitor session</button></form></nav>'
-              if kind == 'workspace' else '<span class="host">lab.nicolasmgioanni.dev</span>')
+    options = []
+    for name, label in [('system', 'System'), ('light', 'Light'), ('navy', 'My mode'), ('dark', 'Dark')]:
+        detail = '<span class="theme-switcher__option-detail" aria-hidden="true">Auto</span>' if name == 'system' else ''
+        options.append(f'<button type="button" class="theme-switcher__option hover-base-1 hover-base-1--compact hover-base-1--inline" '
+                       f'data-preference="{name}" aria-pressed="{str(name == "navy").lower()}"><span>{label}</span>{detail}</button>')
+    source_link = (f'<nav class="blob-footer__column" aria-label="Resources"><h2 class="blob-footer__heading">Resources</h2>'
+                   f'<ul class="blob-footer__links"><li><a class="blob-footer__link hover-base-1 hover-base-1--compact" '
+                   f'href="{REPO}">Research repository</a></li></ul></nav>')
+    page = shell.replace('{{MAIN}}', '' if is_entry else content).replace('{{DIALOG}}', content if is_entry else '')
     layout = dict(TITLE=title, DESCRIPTION=description, REPO=REPO, PAGE_CLASS=kind + '-page',
-                  FOOTER=footer, DIALOG_CLOSE='</dialog>' if is_entry else '',
-                  DIALOG_OPEN=('<dialog id="visitor-dialog" aria-labelledby="notice-title" '
-                               'aria-describedby="notice-intro" closedby="none" open>') if is_entry else '')
+                  FOOTER_RESOURCE=source_link if kind == 'workspace' else '', THEME_OPTIONS=''.join(options),
+                  ADMISSION_SCRIPT='<script defer src="/assets/admission.js"></script>' if is_entry else '',
+                  GATE_CONFIG=' data-sitekey="__TURNSTILE_SITEKEY__"' if is_entry else '',
+                  SHELL_STATE=' inert' if is_entry else '')
     for key, value in dict(values, **layout).items():
         page = page.replace('{{' + key + '}}', value)
-    (SITE / destination).write_text(page)
+    (SITE / destination).write_text('\n'.join(line.rstrip() for line in page.splitlines()) + '\n')
 
 
 def render():
@@ -55,23 +61,34 @@ def render():
     matched = sum(c['expected'] == c['observed'] for run in runs for c in run['checks'])
     observations = sum(len(run['checks']) for run in runs)
     if runs:
-        verdict = f'{matched} of {observations} observations matched the expected counts.'
-        if matched == 4 * len(runs):
-            verdict += ' Git history preserved the marker after the working tree was clean.'
-        links = ' '.join(f'<a href="data/{escape(f.name)}">Run {i + 1} JSON</a>' for i, f in enumerate(files))
+        verdict = f'{matched} of {observations} observations matched across {len(runs)} independent runs.'
         date = escape(runs[-1]['timestamp'].split('T')[0])
-        note = f'Measured {date} UTC. Each measurement ran in a fresh ARM64 Linux VM using two new Git repositories. {links}'
+        note = f'Last measured {date} UTC. Each run used fresh fixtures.'
     else:
-        verdict = 'The expected counts below define the experiment. Measured runs are pending.'
-        note = 'Measurements will appear here after review.'
-    values = dict(HEADERS=headers, ROWS=''.join(rows), VERDICT=verdict, NOTE=note,
-                  RUN_COUNT=str(len(runs)), MATCHED=str(matched), OBSERVATIONS=str(observations))
-    render_page('template.html', 'index.html', 'Defense operations',
-                'Defensive tools, private monitoring and reproducible scanner evidence.', values, 'workspace')
-    render_page('entry-template.html', 'entry.html', 'Lab access notice',
-                'Review visitor permissions, security monitoring and session handling.', {}, 'entry')
+        verdict = 'Measurements are pending.'
+        note = 'The table lists the expected counts for each case.'
+
+    def count_summary(case):
+        counts = {run['checks'][case]['observed'] for run in runs}
+        if not counts:
+            return 'Pending'
+        if len(counts) != 1:
+            return 'Varied by run'
+        number = counts.pop()
+        return f'{number} finding' + ('' if number == 1 else 's') + ' per run'
+
+    finding = ('The working-tree scan found no trace of the synthetic secret after deletion. '
+               'Scanning the commit history recovered it in each run.'
+               if runs and all(r['checks'][0]['observed'] == 0 and r['checks'][1]['observed'] == 1 for r in runs)
+               else 'The study compares scans of the current files and the commit history after a synthetic secret was removed.')
+    values = dict(HEADERS=headers, ROWS=''.join(rows), VERDICT=verdict, NOTE=note, FINDING=finding,
+                  DIRECTORY_COUNT=count_summary(0), HISTORY_COUNT=count_summary(1))
+    render_page('template.html', 'index.html', 'Security research',
+                'Reproducible experiments in defensive security.', values, 'workspace')
+    render_page('entry-template.html', 'entry.html', 'Visitor verification',
+                'Verify this browser and review the visitor access notice.', {}, 'entry')
     render_page('exit-template.html', 'exit.html', 'Session closed',
-                'Your Cyber Lab visitor session is closed.', {}, 'closed')
+                'Your Research Lab visit has ended.', {}, 'closed')
 
 
 if __name__ == '__main__':

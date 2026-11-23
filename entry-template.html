@@ -1,21 +1,27 @@
-<main id="main" class="entry-stage">
-  <div class="entry-grid" aria-hidden="true"><i></i><i></i><i></i></div>
-  <article class="access-card" aria-labelledby="notice-title">
-    <div class="card-rail"><span class="mini-lock" aria-hidden="true"></span> Visitor admission</div>
-    <div class="access-copy">
-      <div class="access-heading">
-        <h1 id="notice-title" tabindex="-1" autofocus>Access notice</h1>
-        <p id="notice-intro">This monitored workspace provides read-only access to published defensive research and scanner evidence.</p>
+<dialog id="visitor-dialog" open closedby="none" aria-labelledby="gate-title" class="modal-dialog modal-dialog--in-place project-skill-dialog" data-state="open" data-topmost="true">
+  <div class="modal-dialog__frame project-skill-dialog__frame">
+    <div id="verification-stage" class="gate-stage">
+      <div class="gate-copy">
+        <h1 class="project-skill-dialog__title" id="gate-title" tabindex="-1" autofocus>Checking your connection</h1>
+        <p class="project-skill-dialog__summary" id="verification-status" role="status" aria-live="polite">Cloudflare verifies your browser before the access notice opens.</p>
+        <div id="turnstile-widget"></div>
+        <noscript><p>Enable JavaScript in this browser to run Cloudflare verification. <a href="/exit">Leave the lab</a></p></noscript>
       </div>
-      <div class="conditions">
-        <section><span class="policy-icon boundary" aria-hidden="true"></span><div><h2>Permitted use</h2><p>You may review and reproduce the experiments. Testing this service or accessing private systems requires the operator’s prior authorization.</p></div></section>
-        <section><span class="policy-icon telemetry" aria-hidden="true"></span><div><h2>Security monitoring</h2><p>Cloudflare screens connections before this notice. Its Managed Challenge can clear browsers automatically. The lab logs time, IP address, estimated country, route category, access decision and a shortened browser user-agent.</p></div></section>
-        <details><summary>Cookie and retention details</summary><p>Cloudflare may set security cookies and keep firewall events. A lab cookie lasts up to ten minutes before acceptance and one hour after. End your session to revoke it. The operator can review up to seven days of lab events. Cleanup runs on traffic and hourly. Provider recovery copies may persist longer. Changing color mode saves a preference in this browser.</p></details>
+      <div class="gate-actions verification-actions"><a href="/exit" class="glass-button glass-button--secondary hover-base-1">Leave</a><button class="glass-button glass-button--secondary hover-base-1" type="button" id="verification-retry" hidden>Retry verification</button></div>
+    </div>
+    <div id="notice-stage" class="gate-stage" hidden>
+      <div class="gate-copy" tabindex="0" role="region" aria-labelledby="notice-title">
+        <h1 id="notice-title" class="project-skill-dialog__title" tabindex="-1">Access notice</h1>
+        <p class="project-skill-dialog__summary" id="notice-intro">You are entering a monitored research site. By continuing, you acknowledge the following terms.</p>
+        <section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Permitted use</h2><p>You may read the published research and reproduce its experiments. Testing this site or any connected service requires prior authorization.</p></section>
+        <section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Security monitoring</h2><p>For up to seven days, the lab keeps the time of access, IP address, estimated country, route category, access decision and a shortened browser user-agent. Cloudflare also processes security events.</p></section>
+        <section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Browser session</h2><p>An essential first-party session cookie links this notice to your browser for up to ten minutes. Accepting or declining clears it. Each new page load requires verification and acceptance. Choosing a color theme saves that preference in your browser.</p></section>
+      </div>
+      <div class="gate-actions">
+        <p id="notice-status" role="status" aria-live="polite"></p>
+        <button type="button" id="decline-entry" class="glass-button glass-button--secondary hover-base-1">Decline</button>
+        <button type="button" id="accept-entry" class="glass-button glass-button--primary hover-base-1 hover-base-1--solid">Accept and enter</button>
       </div>
     </div>
-    <div class="access-actions">
-      <form action="/access/decline" method="post"><button class="secondary" type="submit">Decline and leave</button></form>
-      <form action="/access/accept" method="post"><button class="primary" type="submit">Accept and enter lab</button></form>
-    </div>
-  </article>
-</main>
+  </div>
+</dialog>

@@ -1,47 +1,48 @@
-<main id="main" class="workspace">
-  <section class="hero" aria-labelledby="workspace-title">
-    <div class="hero-copy"><div class="eyebrow"><span class="signal" aria-hidden="true"></span>Public workspace</div>
-      <h1 id="workspace-title">Defense operations</h1>
-      <p>Inspect the lab’s defensive tooling, monitoring boundaries and published scanner evidence.</p>
-      <div class="hero-actions"><a class="primary" href="#tooling">Inspect tooling</a><a class="secondary" href="#operator">Operator access</a></div>
+<div class="page-container page-container--research">
+  <div class="page-intro page-intro--panel motion-reveal">
+    <div class="glass-surface glass-surface--strong page-intro__surface">
+      <header class="section-header section-header--page"><div class="section-header__copy">
+        <h1 class="page-title" id="research-title" tabindex="-1">Security research</h1>
+        <p class="page-description">I test what defensive tools can detect in controlled experiments. Each study pairs a specific question with a reproducible method and measured results.</p>
+      </div></header>
     </div>
-    <figure class="architecture" aria-label="Isolated scanning environment. Synthetic inputs run on disposable Linux workers. Only reviewed evidence enters the public workspace.">
-      <div class="arch-canvas" aria-hidden="true"><div class="callout left">Synthetic inputs</div><div class="callout right">Reviewed evidence</div>
-        <div class="rack"><i></i><i></i><i></i></div>
-      </div>
-      <figcaption><span class="chip-icon" aria-hidden="true"></span>Isolated Linux workers</figcaption>
-    </figure>
-  </section>
-  <div class="workspace-grid">
-    <section class="surface tool-panel" id="tooling" aria-labelledby="tools-title">
-      <div class="panel-heading"><span class="section-icon scanner-icon" aria-hidden="true"></span><h2 id="tools-title">Scanner toolchain</h2></div>
-      <p class="panel-intro">Four scanners run on demand in disposable workers on the lab Mac.</p>
-      <dl class="tool-rows">
-        <div><dt>OSV-Scanner</dt><dd>Dependency advisories</dd></div>
-        <div><dt>Semgrep CE</dt><dd>Source code rules</dd></div>
-        <div><dt>Gitleaks</dt><dd>Secrets in Git history</dd></div>
-        <div><dt>Trivy</dt><dd>Configuration and software inventory</dd></div>
-      </dl>
-    </section>
-    <section class="surface monitoring-panel" aria-labelledby="monitoring-title">
-      <div class="panel-heading"><span class="section-icon monitoring-icon" aria-hidden="true"></span><h2 id="monitoring-title">Security monitoring</h2></div>
-      <div class="service"><div><h3>Cloudflare</h3><span>Public edge</span></div><p>Managed Challenge screens incoming traffic. Admission and page-access events go to the operator’s D1 log.</p></div>
-      <div class="service"><div><h3>Wazuh</h3><span>Private VM</span></div><p>The Mac hosts the lab’s authentication-event monitor. Its current health and detection results are available in the operator console.</p></div>
-    </section>
-    <section class="surface study-panel" id="evidence" aria-labelledby="study-title">
-      <div class="section-label"><span class="signal" aria-hidden="true"></span> Published experiment</div>
-      <h2 id="study-title">Git history secret detection</h2>
-      <p class="study-intro">Gitleaks 8.30.1 scanned the current files and Git history after a synthetic secret was removed.</p>
-      <div class="study-stats"><div><strong>{{MATCHED}}<small>/{{OBSERVATIONS}}</small></strong><span>Observations matched</span></div><div><strong>{{RUN_COUNT}}</strong><span>Fresh worker runs</span></div></div>
-      <details class="study-details"><summary>Measurements and evidence</summary><div class="details-body">
-        <div class="table-scroll" role="region" aria-label="Measured finding counts" tabindex="0"><table><caption class="sr-only">Expected and observed finding counts</caption><thead><tr><th scope="col">Sample</th><th scope="col">Scan</th><th scope="col">Expected</th>{{HEADERS}}</tr></thead><tbody>{{ROWS}}</tbody></table></div>
-        <p>{{VERDICT}}</p><p>{{NOTE}}</p><a href="{{REPO}}/tree/main/experiment">Reproduction source on GitHub</a>
-      </div></details>
-    </section>
-    <section class="surface operator-panel" id="operator" aria-labelledby="operator-title">
-      <div class="panel-heading"><span class="section-icon operator-icon" aria-hidden="true"></span><h2 id="operator-title">Operator access</h2></div>
-      <p class="panel-intro">The private console on the lab Mac shows run history, Wazuh health and links to the owner’s Cloudflare event views.</p>
-      <details class="operator-details"><summary>Sign in on the lab Mac</summary><div class="details-body"><p>From the private checkout, generate a five-minute, single-use code.</p><code>python3 -m console.login</code><p>Enter the code on this Mac to open a one-hour operator session.</p><code>http://127.0.0.1:8765/</code></div></details>
-    </section>
   </div>
-</main>
+  <div class="research-list" data-motion="enabled">
+    <div class="research-project-wrap">
+      <article class="glass-surface glass-surface--default research-project" data-visual-side="left" aria-labelledby="study-title">
+        <div class="research-project__visual">
+          <figure class="study-figure" aria-labelledby="comparison-title">
+            <figcaption id="comparison-title">After the marker was removed</figcaption>
+            <dl class="scope-result">
+              <div><dt>Current files</dt><dd>{{DIRECTORY_COUNT}}</dd></div>
+              <div><dt>Git history</dt><dd>{{HISTORY_COUNT}}</dd></div>
+            </dl>
+          </figure>
+        </div>
+        <div class="research-project__content">
+          <header class="research-project__header">
+            <h2 class="research-project__title" id="study-title">Can a history scan find a deleted secret?</h2>
+            <p class="research-project__formal-title">Gitleaks 8.30.1 · Synthetic Git repositories</p>
+          </header>
+          <div class="research-project__body">
+            <p class="research-project__summary">{{FINDING}}</p>
+            <p class="research-project__impact">{{VERDICT}}</p>
+            <details class="study-disclosure">
+              <summary class="hover-base-1 hover-base-1--compact">Method and results</summary>
+              <div class="study-detail">
+                <p>In each run, one repository received a synthetic secret in its first commit and removed it in the second. A clean control followed the same sequence with ordinary text. Gitleaks scanned both working trees and both commit histories using the same rule.</p>
+                <div class="study-table" role="region" aria-label="Expected and observed finding counts" tabindex="0">
+                  <table><caption>Findings per scan</caption>
+                    <thead><tr><th scope="col">Sample</th><th scope="col">Scan</th><th scope="col">Expected</th>{{HEADERS}}</tr></thead>
+                    <tbody>{{ROWS}}</tbody></table>
+                </div>
+                <p>{{NOTE}}</p>
+                <a class="glass-button glass-button--secondary hover-base-1" href="{{REPO}}/tree/main/experiment">View reproduction source</a>
+              </div>
+            </details>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</div>

@@ -1,28 +1,49 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="navy" data-scroll-behavior="smooth">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="description" content="{{DESCRIPTION}}">
-  <title>{{TITLE}} · Cyber Lab</title>
+  <title>{{TITLE}} · Research Lab</title>
   <link rel="icon" href="/assets/lab-mark.png" type="image/png">
   <link rel="stylesheet" href="/assets/portfolio-tokens.css">
+  <link rel="stylesheet" href="/assets/portfolio.css">
   <link rel="stylesheet" href="/assets/study.css">
-  <script src="/assets/theme.js"></script>
+  <script src="/assets/theme.js"></script>{{ADMISSION_SCRIPT}}
 </head>
-<body class="{{PAGE_CLASS}}">
-{{DIALOG_OPEN}}
-<header class="site-header">
-  <div class="header-inner">
-    <span class="brand"><img src="/assets/lab-mark.png" alt="" width="36" height="36">Cyber Lab</span>
-    <fieldset class="theme-picker" hidden><legend class="sr-only">Color mode</legend>
-      <label><input type="radio" name="theme" value="light"><span class="sun" aria-hidden="true"></span>Light</label>
-      <label><input type="radio" name="theme" value="dark"><span class="moon" aria-hidden="true"></span>Dark</label>
-    </fieldset>
-  </div>
-</header>
-{{MAIN}}
-<footer class="site-footer"><span>Cyber Lab</span>{{FOOTER}}</footer>
-{{DIALOG_CLOSE}}
+<body class="{{PAGE_CLASS}}"{{GATE_CONFIG}}>
+<div class="site-shell" data-glass-effects="true"{{SHELL_STATE}}>
+  <header class="blob-header" data-header-state="expanded">
+    <div class="glass-blob glass-blob--nav blob-header__island">
+      <div class="site-brand"><span class="site-brand__text"><span class="site-brand__name">Research Lab</span></span></div>
+      <div class="blob-header__actions">
+        <div class="theme-switcher" data-open="false">
+          <button type="button" class="glass-icon-button hover-base-1 hover-base-1--compact theme-switcher__trigger" aria-label="Choose color theme" aria-expanded="false" aria-controls="theme-popover">
+            <svg aria-hidden="true" fill="none" focusable="false" height="18" viewBox="0 0 24 24" width="18"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17v-17Z" fill="currentColor" opacity="0.3"/><path d="M12 3.5v17" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"/></svg>
+          </button>
+          <div class="theme-switcher__popover" id="theme-popover" data-state="closed" aria-hidden="true" inert>
+            <div class="theme-switcher__panel" role="group" aria-label="Color theme preference">{{THEME_OPTIONS}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="site-main" id="main">{{MAIN}}</main>
+  <footer class="blob-footer blob-footer--compact" data-footer-state="compact">
+    <div class="blob-footer__runway" aria-hidden="true"><span class="blob-footer__runway-sentinel"></span></div>
+    <div class="glass-blob glass-blob--footer blob-footer__island">
+      <div class="blob-footer__compact">
+        <p class="blob-footer__copyright">Research Lab · Nicolas Gioanni</p>
+        <button type="button" class="blob-footer__toggle hover-base-1 hover-base-1--compact" aria-expanded="false" aria-controls="footer-details">Details</button>
+      </div>
+      <div class="blob-footer__details" id="footer-details" inert aria-hidden="true"><div class="blob-footer__details-inner"><div class="blob-footer__details-grid">
+        <section class="blob-footer__identity"><h2 class="blob-footer__owner">Research Lab</h2><p class="blob-footer__description">Independent security research by Nicolas Gioanni.</p></section>
+        <nav class="blob-footer__column" aria-label="Visitor access"><h2 class="blob-footer__heading">Visitor access</h2><ul class="blob-footer__links"><li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/verify">Access notice</a></li></ul></nav>
+        {{FOOTER_RESOURCE}}
+      </div></div></div>
+    </div>
+  </footer>
+</div>
+{{DIALOG}}
 </body>
 </html>

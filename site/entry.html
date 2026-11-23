@@ -1,48 +1,75 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="navy" data-scroll-behavior="smooth">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="description" content="Review visitor permissions, security monitoring and session handling.">
-  <title>Lab access notice · Cyber Lab</title>
+  <meta name="description" content="Verify this browser and review the visitor access notice.">
+  <title>Visitor verification · Research Lab</title>
   <link rel="icon" href="/assets/lab-mark.png" type="image/png">
   <link rel="stylesheet" href="/assets/portfolio-tokens.css">
+  <link rel="stylesheet" href="/assets/portfolio.css">
   <link rel="stylesheet" href="/assets/study.css">
-  <script src="/assets/theme.js"></script>
+  <script src="/assets/theme.js"></script><script defer src="/assets/admission.js"></script>
 </head>
-<body class="entry-page">
-<dialog id="visitor-dialog" aria-labelledby="notice-title" aria-describedby="notice-intro" closedby="none" open>
-<header class="site-header">
-  <div class="header-inner">
-    <span class="brand"><img src="/assets/lab-mark.png" alt="" width="36" height="36">Cyber Lab</span>
-    <fieldset class="theme-picker" hidden><legend class="sr-only">Color mode</legend>
-      <label><input type="radio" name="theme" value="light"><span class="sun" aria-hidden="true"></span>Light</label>
-      <label><input type="radio" name="theme" value="dark"><span class="moon" aria-hidden="true"></span>Dark</label>
-    </fieldset>
+<body class="entry-page" data-sitekey="__TURNSTILE_SITEKEY__">
+<div class="site-shell" data-glass-effects="true" inert>
+  <header class="blob-header" data-header-state="expanded">
+    <div class="glass-blob glass-blob--nav blob-header__island">
+      <div class="site-brand"><span class="site-brand__text"><span class="site-brand__name">Research Lab</span></span></div>
+      <div class="blob-header__actions">
+        <div class="theme-switcher" data-open="false">
+          <button type="button" class="glass-icon-button hover-base-1 hover-base-1--compact theme-switcher__trigger" aria-label="Choose color theme" aria-expanded="false" aria-controls="theme-popover">
+            <svg aria-hidden="true" fill="none" focusable="false" height="18" viewBox="0 0 24 24" width="18"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17v-17Z" fill="currentColor" opacity="0.3"/><path d="M12 3.5v17" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"/></svg>
+          </button>
+          <div class="theme-switcher__popover" id="theme-popover" data-state="closed" aria-hidden="true" inert>
+            <div class="theme-switcher__panel" role="group" aria-label="Color theme preference"><button type="button" class="theme-switcher__option hover-base-1 hover-base-1--compact hover-base-1--inline" data-preference="system" aria-pressed="false"><span>System</span><span class="theme-switcher__option-detail" aria-hidden="true">Auto</span></button><button type="button" class="theme-switcher__option hover-base-1 hover-base-1--compact hover-base-1--inline" data-preference="light" aria-pressed="false"><span>Light</span></button><button type="button" class="theme-switcher__option hover-base-1 hover-base-1--compact hover-base-1--inline" data-preference="navy" aria-pressed="true"><span>My mode</span></button><button type="button" class="theme-switcher__option hover-base-1 hover-base-1--compact hover-base-1--inline" data-preference="dark" aria-pressed="false"><span>Dark</span></button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="site-main" id="main"></main>
+  <footer class="blob-footer blob-footer--compact" data-footer-state="compact">
+    <div class="blob-footer__runway" aria-hidden="true"><span class="blob-footer__runway-sentinel"></span></div>
+    <div class="glass-blob glass-blob--footer blob-footer__island">
+      <div class="blob-footer__compact">
+        <p class="blob-footer__copyright">Research Lab · Nicolas Gioanni</p>
+        <button type="button" class="blob-footer__toggle hover-base-1 hover-base-1--compact" aria-expanded="false" aria-controls="footer-details">Details</button>
+      </div>
+      <div class="blob-footer__details" id="footer-details" inert aria-hidden="true"><div class="blob-footer__details-inner"><div class="blob-footer__details-grid">
+        <section class="blob-footer__identity"><h2 class="blob-footer__owner">Research Lab</h2><p class="blob-footer__description">Independent security research by Nicolas Gioanni.</p></section>
+        <nav class="blob-footer__column" aria-label="Visitor access"><h2 class="blob-footer__heading">Visitor access</h2><ul class="blob-footer__links"><li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/verify">Access notice</a></li></ul></nav>
+
+      </div></div></div>
+    </div>
+  </footer>
+</div>
+<dialog id="visitor-dialog" open closedby="none" aria-labelledby="gate-title" class="modal-dialog modal-dialog--in-place project-skill-dialog" data-state="open" data-topmost="true">
+  <div class="modal-dialog__frame project-skill-dialog__frame">
+    <div id="verification-stage" class="gate-stage">
+      <div class="gate-copy">
+        <h1 class="project-skill-dialog__title" id="gate-title" tabindex="-1" autofocus>Checking your connection</h1>
+        <p class="project-skill-dialog__summary" id="verification-status" role="status" aria-live="polite">Cloudflare verifies your browser before the access notice opens.</p>
+        <div id="turnstile-widget"></div>
+        <noscript><p>Enable JavaScript in this browser to run Cloudflare verification. <a href="/exit">Leave the lab</a></p></noscript>
+      </div>
+      <div class="gate-actions verification-actions"><a href="/exit" class="glass-button glass-button--secondary hover-base-1">Leave</a><button class="glass-button glass-button--secondary hover-base-1" type="button" id="verification-retry" hidden>Retry verification</button></div>
+    </div>
+    <div id="notice-stage" class="gate-stage" hidden>
+      <div class="gate-copy" tabindex="0" role="region" aria-labelledby="notice-title">
+        <h1 id="notice-title" class="project-skill-dialog__title" tabindex="-1">Access notice</h1>
+        <p class="project-skill-dialog__summary" id="notice-intro">You are entering a monitored research site. By continuing, you acknowledge the following terms.</p>
+        <section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Permitted use</h2><p>You may read the published research and reproduce its experiments. Testing this site or any connected service requires prior authorization.</p></section>
+        <section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Security monitoring</h2><p>For up to seven days, the lab keeps the time of access, IP address, estimated country, route category, access decision and a shortened browser user-agent. Cloudflare also processes security events.</p></section>
+        <section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Browser session</h2><p>An essential first-party session cookie links this notice to your browser for up to ten minutes. Accepting or declining clears it. Each new page load requires verification and acceptance. Choosing a color theme saves that preference in your browser.</p></section>
+      </div>
+      <div class="gate-actions">
+        <p id="notice-status" role="status" aria-live="polite"></p>
+        <button type="button" id="decline-entry" class="glass-button glass-button--secondary hover-base-1">Decline</button>
+        <button type="button" id="accept-entry" class="glass-button glass-button--primary hover-base-1 hover-base-1--solid">Accept and enter</button>
+      </div>
+    </div>
   </div>
-</header>
-<main id="main" class="entry-stage">
-  <div class="entry-grid" aria-hidden="true"><i></i><i></i><i></i></div>
-  <article class="access-card" aria-labelledby="notice-title">
-    <div class="card-rail"><span class="mini-lock" aria-hidden="true"></span> Visitor admission</div>
-    <div class="access-copy">
-      <div class="access-heading">
-        <h1 id="notice-title" tabindex="-1" autofocus>Access notice</h1>
-        <p id="notice-intro">This monitored workspace provides read-only access to published defensive research and scanner evidence.</p>
-      </div>
-      <div class="conditions">
-        <section><span class="policy-icon boundary" aria-hidden="true"></span><div><h2>Permitted use</h2><p>You may review and reproduce the experiments. Testing this service or accessing private systems requires the operator’s prior authorization.</p></div></section>
-        <section><span class="policy-icon telemetry" aria-hidden="true"></span><div><h2>Security monitoring</h2><p>Cloudflare screens connections before this notice. Its Managed Challenge can clear browsers automatically. The lab logs time, IP address, estimated country, route category, access decision and a shortened browser user-agent.</p></div></section>
-        <details><summary>Cookie and retention details</summary><p>Cloudflare may set security cookies and keep firewall events. A lab cookie lasts up to ten minutes before acceptance and one hour after. End your session to revoke it. The operator can review up to seven days of lab events. Cleanup runs on traffic and hourly. Provider recovery copies may persist longer. Changing color mode saves a preference in this browser.</p></details>
-      </div>
-    </div>
-    <div class="access-actions">
-      <form action="/access/decline" method="post"><button class="secondary" type="submit">Decline and leave</button></form>
-      <form action="/access/accept" method="post"><button class="primary" type="submit">Accept and enter lab</button></form>
-    </div>
-  </article>
-</main>
-<footer class="site-footer"><span>Cyber Lab</span><span class="host">lab.nicolasmgioanni.dev</span></footer>
 </dialog>
 </body>
 </html>
