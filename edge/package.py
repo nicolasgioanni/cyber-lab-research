@@ -9,6 +9,8 @@ from pathlib import Path
 from urllib.parse import urljoin
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+from policies import POLICY_REVISION, POLICY_TITLES
 SITE = ROOT / "site"
 # Only files in this list may be served before admission. Dependency order matters:
 # styles reference the fingerprinted font, then HTML references the final styles.
@@ -76,6 +78,8 @@ def package(output):
     asset_urls, files = assets_for_release()
     documents = {route: render_document(SITE / name, asset_urls)
                  for route, name in [("/", "index.html"), ("/entry", "entry.html"), ("/exit", "exit.html")]}
+    documents.update({route: render_document(SITE / (route[1:] + ".html"), asset_urls)
+                      for route in POLICY_TITLES})
     if documents["/entry"].count("__TURNSTILE_SITEKEY__") != 1:
         raise ValueError("Verification page must expose exactly one widget site key placeholder")
 
@@ -95,7 +99,7 @@ def package(output):
 
     schema = [statement.strip() for statement in (ROOT / "edge/schema.sql").read_text().split(";") if statement.strip()]
     source = (ROOT / "edge/worker.mjs").read_text()
-    for name, value in [("DOCUMENTS", documents), ("SCHEMA", schema), ("ASSETS", asset_urls)]:
+    for name, value in [("DOCUMENTS", documents), ("POLICY_ROUTES", list(POLICY_TITLES)), ("REVISION", POLICY_REVISION), ("SCHEMA", schema), ("ASSETS", asset_urls)]:
         marker = f"/* PACK:{name} */ null"
         if source.count(marker) != 1:
             raise ValueError(f"Worker pack marker missing or ambiguous: {name}")

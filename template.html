@@ -1,48 +1,131 @@
-<div class="page-container page-container--research">
+<section class="page-container page-container--research" data-research-view="/" aria-labelledby="research-title">
   <div class="page-intro page-intro--panel motion-reveal">
     <div class="glass-surface glass-surface--strong page-intro__surface">
       <header class="section-header section-header--page"><div class="section-header__copy">
-        <h1 class="page-title" id="research-title" tabindex="-1">Security research</h1>
-        <p class="page-description">I test what defensive tools can detect in controlled experiments. Each study pairs a specific question with a reproducible method and measured results.</p>
+        <h1 class="page-title" id="research-title" tabindex="-1">Independent security research</h1>
+        <p class="page-description">I study how agents, retrieval systems, and defensive tools handle security decisions. I publish the test conditions and measured results so readers can judge what each experiment establishes.</p>
       </div></header>
     </div>
   </div>
   <div class="research-list" data-motion="enabled">
-    <div class="research-project-wrap">
-      <article class="glass-surface glass-surface--default research-project" data-visual-side="left" aria-labelledby="study-title">
-        <div class="research-project__visual">
-          <figure class="study-figure" aria-labelledby="comparison-title">
-            <figcaption id="comparison-title">After the marker was removed</figcaption>
-            <dl class="scope-result">
-              <div><dt>Current files</dt><dd>{{DIRECTORY_COUNT}}</dd></div>
-              <div><dt>Git history</dt><dd>{{HISTORY_COUNT}}</dd></div>
-            </dl>
-          </figure>
-        </div>
-        <div class="research-project__content">
-          <header class="research-project__header">
-            <h2 class="research-project__title" id="study-title">Can a history scan find a deleted secret?</h2>
-            <p class="research-project__formal-title">Gitleaks 8.30.1 · Synthetic Git repositories</p>
-          </header>
-          <div class="research-project__body">
-            <p class="research-project__summary">{{FINDING}}</p>
-            <p class="research-project__impact">{{VERDICT}}</p>
-            <details class="study-disclosure">
-              <summary class="hover-base-1 hover-base-1--compact">Method and results</summary>
-              <div class="study-detail">
-                <p>In each run, one repository received a synthetic secret in its first commit and removed it in the second. A clean control followed the same sequence with ordinary text. Gitleaks scanned both working trees and both commit histories using the same rule.</p>
-                <div class="study-table" role="region" aria-label="Expected and observed finding counts" tabindex="0">
-                  <table><caption>Findings per scan</caption>
-                    <thead><tr><th scope="col">Sample</th><th scope="col">Scan</th><th scope="col">Expected</th>{{HEADERS}}</tr></thead>
-                    <tbody>{{ROWS}}</tbody></table>
-                </div>
-                <p>{{NOTE}}</p>
-                <a class="glass-button glass-button--secondary hover-base-1" href="{{REPO}}/tree/main/experiment">View reproduction source</a>
-              </div>
-            </details>
-          </div>
-        </div>
-      </article>
+    <section class="research-project-wrap" aria-labelledby="areas-title">
+      <header class="section-header lab-section-heading"><h2 class="section-heading" id="areas-title">Research areas</h2></header>
+      <div class="featured-grid featured-grid--three">
+        <article class="glass-card glass-card--comfortable portfolio-card portfolio-card--detail">
+          <div class="content-card__header"><p class="lab-status">Planned</p><h3 class="content-card__title"><a class="lab-title-link" href="/agents">Agents</a></h3></div>
+          <p class="content-card__summary">Can an agent trace a dependency advisory to the affected code and propose a fix that preserves expected behavior?</p>
+        </article>
+        <article class="glass-card glass-card--comfortable portfolio-card portfolio-card--detail">
+          <div class="content-card__header"><p class="lab-status">Published study</p><h3 class="content-card__title"><a class="lab-title-link" href="/validation">Validation</a></h3></div>
+          <p class="content-card__summary">Where does a defensive control find an expected signal, and what does it miss when the scope of a scan changes?</p>
+        </article>
+        <article class="glass-card glass-card--comfortable portfolio-card portfolio-card--detail">
+          <div class="content-card__header"><p class="lab-status">Planned</p><h3 class="content-card__title"><a class="lab-title-link" href="/retrieval">Retrieval</a></h3></div>
+          <p class="content-card__summary">Does a retrieval system respect document permissions and support its answers with sources a reader can inspect?</p>
+        </article>
+      </div>
+    </section>
+    <article class="glass-surface glass-surface--strong lab-panel research-project-wrap">
+      <p class="eyebrow">Published study</p>
+      <h2 class="section-heading"><a class="lab-title-link" href="/validation#study">Detecting committed secrets after deletion</a></h2>
+      <p class="lab-lead">{{FINDING}}</p>
+    </article>
+  </div>
+</section>
+
+<section hidden class="page-container page-container--research" data-research-view="/agents" aria-labelledby="agents-title">
+  <div class="page-intro page-intro--panel motion-reveal">
+    <div class="glass-surface glass-surface--strong page-intro__surface">
+      <header class="section-header section-header--page"><div class="section-header__copy">
+        <p class="eyebrow">Planned</p>
+        <h1 id="agents-title" class="page-title" tabindex="-1">Agents</h1>
+        <p class="page-description">An advisory identifies an affected package. Remediation also requires finding where a project depends on it, changing the right files, and checking the behavior of the result.</p>
+      </div></header>
     </div>
   </div>
-</div>
+  <div class="research-list" data-motion="enabled">
+    <article class="glass-surface glass-surface--strong lab-panel research-project-wrap">
+      <h2 class="section-heading">Evaluating an agent’s patch</h2>
+      <p class="lab-lead">The planned benchmark pairs a synthetic repository with an advisory and a known affected dependency. The agent will be asked to explain the dependency path and submit a patch for review.</p>
+      <dl class="lab-measures">
+        <div><dt>Identification</dt><dd>Compare the files, versions, and dependency path cited by the agent with the fixture’s known dependency graph.</dd></div>
+        <div><dt>Remediation</dt><dd>Inspect the proposed change and rerun the dependency check against the same advisory data.</dd></div>
+        <div><dt>Regression checks</dt><dd>Run the project’s behavioral tests. Record failed checks and unnecessary changes alongside any successful repair.</dd></div>
+      </dl>
+    </article>
+  </div>
+</section>
+
+<section hidden class="page-container page-container--research" data-research-view="/validation" aria-labelledby="validation-title">
+  <div class="page-intro page-intro--panel motion-reveal">
+    <div class="glass-surface glass-surface--strong page-intro__surface">
+      <header class="section-header section-header--page"><div class="section-header__copy">
+        <h1 class="page-title" id="validation-title" tabindex="-1">Validation</h1>
+        <p class="page-description">I evaluate defensive tools against fixtures with known outcomes. Each published study identifies the control, records the observations, and explains the limits of the result.</p>
+      </div></header>
+    </div>
+  </div>
+  <div class="research-list" data-motion="enabled">
+    <article class="glass-surface glass-surface--strong lab-panel research-project-wrap" id="study" tabindex="-1" aria-labelledby="study-title">
+      <header class="section-header section-header--compact"><div class="section-header__copy">
+        <p class="eyebrow">Published study</p>
+        <h2 id="study-title" class="section-heading">Detecting committed secrets after deletion</h2>
+      </div></header>
+      <p class="lab-lead">{{FINDING}}</p>
+      <div class="lab-study-method">
+        <section aria-labelledby="method-title">
+          <h3 class="content-card__title" id="method-title">Method</h3>
+          <p>Each of two independent runs created two Git repositories. In one, the first commit introduced an inert marker and the second removed it. The clean control followed the same sequence with ordinary text.</p>
+          <p>Gitleaks 8.30.1 applied the same lab-authored rule to the current files and the Git history of each repository.</p>
+        </section>
+        <section aria-labelledby="counts-title">
+          <h3 class="content-card__title" id="counts-title">Results</h3>
+          <div class="study-table" role="region" aria-labelledby="counts-title" tabindex="0">
+            <table><caption>Findings per scan</caption>
+              <thead><tr><th scope="col">Sample</th><th scope="col">Scan scope</th><th scope="col">Expected</th>{{HEADERS}}</tr></thead>
+              <tbody>{{ROWS}}</tbody>
+            </table>
+          </div>
+          <p class="lab-note">{{NOTE}}</p>
+        </section>
+      </div>
+      <section class="lab-study-interpretation" aria-labelledby="scope-title">
+        <h3 class="content-card__title" id="scope-title">What the result establishes</h3>
+        <p>A working-tree scan can return zero findings even when an earlier commit contains the marker. Both scans of the clean control returned zero findings in both runs. This experiment covers one rule and one synthetic marker. Estimating detection rates across repositories would require testing other formats and rules.</p>
+      </section>
+      <nav class="lab-source-links" aria-label="Study evidence">
+        <a href="{{REPO}}/blob/{{EVIDENCE_COMMIT}}/site/data/worker-1.json">Run 1 record</a>
+        <a href="{{REPO}}/blob/{{EVIDENCE_COMMIT}}/site/data/worker-2.json">Run 2 record</a>
+        <a href="{{REPO}}/blob/{{EVIDENCE_COMMIT}}/experiment/rule.toml">Detection rule</a>
+        <a href="{{REPO}}/blob/{{EVIDENCE_COMMIT}}/experiment/run.py">Reproduction source</a>
+      </nav>
+    </article>
+    <article class="glass-card glass-card--comfortable portfolio-card portfolio-card--detail research-project-wrap">
+      <div class="content-card__header"><p class="lab-status">Planned</p><h2 class="content-card__title">Detection under simulated activity</h2></div>
+      <p class="content-card__summary">Future evaluations will compare alerts from authorized, simulated security events with ordinary activity. Each case will define the expected alert before the control is run.</p>
+    </article>
+  </div>
+</section>
+
+<section hidden class="page-container page-container--research" data-research-view="/retrieval" aria-labelledby="retrieval-title">
+  <div class="page-intro page-intro--panel motion-reveal">
+    <div class="glass-surface glass-surface--strong page-intro__surface">
+      <header class="section-header section-header--page"><div class="section-header__copy">
+        <p class="eyebrow">Planned</p>
+        <h1 class="page-title" id="retrieval-title" tabindex="-1">Retrieval</h1>
+        <p class="page-description">Retrieval-augmented generation gives a model documents to consult when answering a question. Which documents it receives, and how it uses them, determine what the reader can safely rely on.</p>
+      </div></header>
+    </div>
+  </div>
+  <div class="research-list" data-motion="enabled">
+    <article class="glass-surface glass-surface--strong lab-panel research-project-wrap">
+      <h2 class="section-heading">Evaluating answers against a controlled corpus</h2>
+      <p class="lab-lead">The planned study will use synthetic documents, known permissions, and questions with traceable answers. The retrieval step and the generated answer will be evaluated separately.</p>
+      <dl class="lab-measures">
+        <div><dt>Access boundaries</dt><dd>Compare retrieved documents against the test reader’s permissions, including cases where a restricted document would best match the question.</dd></div>
+        <div><dt>Citation accuracy</dt><dd>Check whether each citation identifies an allowed source and whether the cited passage supports the answer.</dd></div>
+        <div><dt>Untrusted content</dt><dd>Place irrelevant instructions in a source document and record whether they change the answer. A faithful response should use the passage as evidence and preserve the reader’s original task.</dd></div>
+      </dl>
+    </article>
+  </div>
+</section>

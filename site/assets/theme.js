@@ -129,6 +129,72 @@
     }
   });
 
+  let navResize;
+  let indicatorAnimation;
+  function alignIndicator(animate = false) {
+    const navigation = document.querySelector('.main-navigation');
+    const indicator = navigation?.querySelector('.active-route-indicator');
+    if (!indicator) return;
+    const link = navigation.querySelector('[aria-current="page"]');
+    const previous = indicator.dataset.visible === 'true' ? indicator.getBoundingClientRect() : null;
+    navigation.dataset.routeIndicatorReady = 'true';
+    indicator.dataset.visible = String(Boolean(link));
+    if (!link) { indicatorAnimation?.cancel(); return; }
+    const nav = navigation.getBoundingClientRect();
+    const next = link.getBoundingClientRect();
+    if (!next.width) return;
+    const position = rect => `translate3d(${rect.left - nav.left - navigation.clientLeft}px, ${rect.top - nav.top - navigation.clientTop}px, 0)`;
+    const transform = position(next);
+    if (indicator.style.transform === transform && parseFloat(indicator.style.width) === next.width &&
+        parseFloat(indicator.style.height) === next.height) return;
+    indicator.style.width = next.width + 'px';
+    indicator.style.height = next.height + 'px';
+    indicator.style.transform = transform;
+    if (!animate || reduceMotion.matches || !previous?.width || !indicator.animate) return;
+    indicatorAnimation?.cancel();
+    indicatorAnimation = indicator.animate([
+      {opacity: 0.82, transform: position(previous) + ` scale(${previous.width / next.width}, ${previous.height / next.height})`},
+      {opacity: 1, transform}
+    ], {duration: 420, easing: 'cubic-bezier(0.65, 0, 0.35, 1)'});
+  }
+
+  function selectRoute(animate) {
+    for (const link of document.querySelectorAll('.main-navigation__link, .mobile-navigation__link, .blob-footer__link')) {
+      if (link.origin === location.origin && link.pathname === location.pathname) {
+        link.setAttribute('aria-current', 'page');
+        if (link.hasAttribute('data-navigation-link')) link.dataset.routeActive = 'true';
+      } else {
+        link.removeAttribute('aria-current');
+        delete link.dataset.routeActive;
+      }
+    }
+    alignIndicator(animate);
+    const rail = document.querySelector('.mobile-navigation__rail');
+    const active = rail?.querySelector('[aria-current="page"]');
+    if (active && rail.scrollWidth > rail.clientWidth && rail.clientWidth) {
+      const linkRect = active.getBoundingClientRect();
+      const offset = linkRect.left - rail.getBoundingClientRect().left + (linkRect.width - rail.clientWidth) / 2;
+      rail.scrollTo({left: rail.scrollLeft + offset, behavior: animate && !reduceMotion.matches ? 'smooth' : 'instant'});
+    }
+  }
+
+  let revealObserver;
+  function revealContent() {
+    revealObserver?.disconnect();
+    if (reduceMotion.matches || !('IntersectionObserver' in window)) return;
+    revealObserver = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+    for (const item of document.querySelectorAll('main .motion-reveal:not(.is-visible)')) {
+      item.classList.add('motion-ready');
+      revealObserver.observe(item);
+    }
+  }
+
   function initializeShell() {
     paint();
     const dialog = document.getElementById('visitor-dialog');
@@ -139,20 +205,23 @@
       dialog.showModal();
       requestAnimationFrame(() => requestAnimationFrame(() => { dialog.dataset.state = 'open'; }));
     }
-    const intro = document.querySelector('.motion-reveal');
-    if (intro && !reduceMotion.matches && 'IntersectionObserver' in window) {
-      intro.classList.add('motion-ready');
-      const observer = new IntersectionObserver(entries => {
-        if (entries.some(entry => entry.isIntersecting)) {
-          intro.classList.add('is-visible');
-          observer.disconnect();
-        }
-      });
-      observer.observe(intro);
+    selectRoute(false);
+    navResize?.disconnect();
+    if ('ResizeObserver' in window) {
+      navResize = new ResizeObserver(() => alignIndicator());
+      for (const element of document.querySelectorAll('.main-navigation, [data-navigation-link]')) {
+        navResize.observe(element);
+      }
     }
+    revealContent();
     lastY = window.scrollY;
     manuallyCollapsed = false;
   }
   document.addEventListener('DOMContentLoaded', initializeShell, { once: true });
   document.addEventListener('lab:admitted', initializeShell);
+  document.addEventListener('lab:navigate', () => {
+    selectRoute(true);
+    revealContent();
+  });
+  document.fonts?.ready.then(() => alignIndicator());
 })();

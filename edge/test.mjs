@@ -62,11 +62,11 @@ async function notice(e,id,opts={}) {
   return {...await result.json(),cookie:cookie.split(';')[0],setCookies:result.headers.getSetCookie()};
 }
 async function sign(id,challenge,overrides={}) {
-  const {nonce,keyId,target}= {...challenge,...overrides};
-  const params='("@method" "@target-uri");keyid="'+keyId+'";nonce="'+nonce+'";alg="ecdsa-p256-sha256"';
-  const message='"@method": POST\n"@target-uri": '+target+'\n"@signature-params": '+params;
+  const {nonce,keyId,target,policyRevision}= {...challenge,...overrides};
+  const params='("@method" "@target-uri" "x-lab-policy-revision");keyid="'+keyId+'";nonce="'+nonce+'";alg="ecdsa-p256-sha256"';
+  const message='"@method": POST\n"@target-uri": '+target+'\n"x-lab-policy-revision": '+policyRevision+'\n"@signature-params": '+params;
   const signature=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},id.privateKey,encoder.encode(message));
-  return {'Signature-Input':'lab='+params,'Signature':'lab=:'+Buffer.from(signature).toString('base64')+':'};
+  return {'X-Lab-Policy-Revision':policyRevision,'Signature-Input':'lab='+params,'Signature':'lab=:'+Buffer.from(signature).toString('base64')+':'};
 }
 const accept=(e,n,headers,opts={}) => call(e,'/access/accept',{method:'POST',cookie:n.cookie,headers,...opts});
 
@@ -138,7 +138,7 @@ test('only one duplicate signed acceptance succeeds and only its POST returns th
   for (const p of ['/','/data/worker-1.json']) assert.equal((await call(e,p,{cookie:n.cookie})).headers.get('Location'),'/verify');
   assert.equal((await issue(e,id)).status,409);
   const events=select(e,"SELECT * FROM access_events WHERE event='accepted'");
-  assert.equal(events.length,1); assert.equal(events[0].country,'US'); assert.equal(events[0].ip,'192.0.2.10');
+  assert.equal(events.length,1); assert.equal(events[0].policy_revision,n.policyRevision); assert.equal(events[0].country,'US'); assert.equal(events[0].ip,'192.0.2.10');
   const all=JSON.stringify(select(e,'SELECT * FROM access_events'));
   for (const sensitive of [n.cookie,n.nonce,id.publicKey,proof.Signature,'fixture-token']) assert.ok(!all.includes(sensitive));
 });
@@ -232,4 +232,57 @@ test('a missing or unavailable rate-limit service fails closed only where requir
   delete e.LAB_ADMISSION_LIMITER;
   assert.equal((await call(e,'/access/accept',{method:'POST'})).status,503);
   assert.equal((await call(e,'/verify')).status,200);
+});
+
+test('only published policy documents open without admission, including during an outage', async () => {
+  const routes = ['/access-notice','/privacy','/cookies','/terms','/security','/ai-disclosure'];
+  for (const path of routes) {
+    const result = await call({}, path);
+    assert.equal(result.status, 200, path);
+    assert.equal(result.headers.get('Set-Cookie'), null);
+    const html = await result.text();
+    assert.match(html, /legal-document/);
+    assert.doesNotMatch(html, /data-research-view=|id="turnstile-widget"/);
+    assert.equal(await (await call({},path,{method:'HEAD'})).text(), '');
+    assert.equal((await call(env(),path,{method:'POST'})).status,405);
+    assert.equal(existsSync(join(runtime,path.slice(1)+'.html')), false);
+    assert.equal((await call({},path,{otherHost:'https://demo.pages.dev'})).headers.get('Location'),host+path);
+  }
+  const e = env();
+  for (const path of ['/agents','/validation','/retrieval']) {
+    assert.equal((await call(e,path)).headers.get('Location'), '/verify?view='+path.slice(1));
+    assert.equal((await call({},path,{otherHost:'https://demo.pages.dev'})).headers.get('Location'),
+      host+'/verify?view='+path.slice(1));
+  }
+  for (const path of ['/terms.html','/privacy/index.html','/access-notice/extra','/entry','/index.html']) {
+    const result = await call(e,path);
+    assert.equal(result.status,303);
+    assert.equal(result.headers.get('Location'),'/verify');
+  }
+});
+
+test('upgrades legacy events, verifies the displayed policy revision, and preserves old records', async () => {
+  const e = env();
+  e.LAB_EVENTS.engine.exec(`CREATE TABLE access_events (
+    id INTEGER PRIMARY KEY, at INTEGER, event TEXT, path TEXT, ip TEXT, country TEXT, user_agent TEXT
+  ); INSERT INTO access_events(at,event,path) VALUES(unixepoch(),'accepted','/access/accept');`);
+  const gate = await (await call(e,'/verify')).text();
+  const id = await identity();
+  const n = await notice(e,id);
+  assert.ok(n.policyRevision && gate.includes('data-policy-revision="'+n.policyRevision+'"'));
+  assert.equal(select(e,'SELECT policy_revision FROM access_events WHERE id=1')[0].policy_revision,null);
+  const outdated = await sign(id,n,{policyRevision:'previous-policy'});
+  assert.equal((await accept(e,n,outdated)).status,409);
+  assert.equal((await accept(e,n,{...outdated,'X-Lab-Policy-Revision':n.policyRevision})).status,403);
+  assert.equal(select(e,"SELECT * FROM access_events WHERE event='accepted'").length,1);
+  const oldId = await identity(), old = await notice(e,oldId);
+  const previousDigest = createHash('sha256').update('previous-policy:' + old.nonce).digest('hex');
+  e.LAB_EVENTS.engine.prepare('UPDATE admission_proofs SET nonce=? WHERE key_id=?').run(previousDigest,old.keyId);
+  assert.equal((await accept(e,old,await sign(oldId,old))).status,403);
+  const accepted = await accept(e,n,await sign(id,n));
+  assert.equal(accepted.status,200);
+  assert.equal(accepted.headers.get('X-Lab-Session-Seconds'),'3600');
+  const html = await accepted.text();
+  for (const p of ['/','/agents','/validation','/retrieval']) assert.ok(html.includes('data-research-view="'+p+'"'));
+  assert.equal(select(e,"SELECT policy_revision FROM access_events WHERE event='accepted' ORDER BY id DESC")[0].policy_revision,n.policyRevision);
 });

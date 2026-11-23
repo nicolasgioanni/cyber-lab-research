@@ -11,11 +11,27 @@
   <link rel="stylesheet" href="/assets/study.css">
   <script src="/assets/theme.js"></script><script defer src="/assets/admission.js"></script>
 </head>
-<body class="entry-page" data-sitekey="__TURNSTILE_SITEKEY__">
+<body class="entry-page" data-sitekey="__TURNSTILE_SITEKEY__" data-policy-revision="5abebc193da93e23">
 <div class="site-shell" data-glass-effects="true" inert>
+  <a class="lab-skip-link" href="#lab-main">Skip to content</a>
   <header class="blob-header" data-header-state="expanded">
     <div class="glass-blob glass-blob--nav blob-header__island">
       <div class="site-brand"><span class="site-brand__text"><span class="site-brand__name">Research Lab</span></span></div>
+      <nav class="main-navigation" aria-label="Main navigation" data-route-indicator-ready="false">
+        <span class="active-route-indicator" aria-hidden="true" data-visible="false"></span>
+        <a href="/" class="main-navigation__link hover-base-1 hover-base-1--route" data-navigation-link="true"><span>Home</span></a>
+        <a href="/agents" class="main-navigation__link hover-base-1 hover-base-1--route" data-navigation-link="true"><span>Agents</span></a>
+        <a href="/validation" class="main-navigation__link hover-base-1 hover-base-1--route" data-navigation-link="true"><span>Validation</span></a>
+        <a href="/retrieval" class="main-navigation__link hover-base-1 hover-base-1--route" data-navigation-link="true"><span>Retrieval</span></a>
+      </nav>
+      <div class="mobile-navigation mobile-navigation__rail">
+        <nav aria-label="Mobile navigation" class="mobile-navigation__routes">
+          <a href="/" class="mobile-navigation__link hover-base-1 hover-base-1--compact">Home</a>
+          <a href="/agents" class="mobile-navigation__link hover-base-1 hover-base-1--compact">Agents</a>
+          <a href="/validation" class="mobile-navigation__link hover-base-1 hover-base-1--compact">Validation</a>
+          <a href="/retrieval" class="mobile-navigation__link hover-base-1 hover-base-1--compact">Retrieval</a>
+        </nav>
+      </div>
       <div class="blob-header__actions">
         <div class="theme-switcher" data-open="false">
           <button type="button" class="glass-icon-button hover-base-1 hover-base-1--compact theme-switcher__trigger" aria-label="Choose color theme" aria-expanded="false" aria-controls="theme-popover">
@@ -28,7 +44,7 @@
       </div>
     </div>
   </header>
-  <main class="site-main" id="main"></main>
+  <main class="site-main" id="lab-main" tabindex="-1"></main>
   <footer class="blob-footer blob-footer--compact" data-footer-state="compact">
     <div class="blob-footer__runway" aria-hidden="true"><span class="blob-footer__runway-sentinel"></span></div>
     <div class="glass-blob glass-blob--footer blob-footer__island">
@@ -38,9 +54,32 @@
       </div>
       <div class="blob-footer__details" id="footer-details" inert aria-hidden="true"><div class="blob-footer__details-inner"><div class="blob-footer__details-grid">
         <section class="blob-footer__identity"><h2 class="blob-footer__owner">Research Lab</h2><p class="blob-footer__description">Independent security research by Nicolas Gioanni.</p></section>
-        <nav class="blob-footer__column" aria-label="Visitor access"><h2 class="blob-footer__heading">Visitor access</h2><ul class="blob-footer__links"><li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/verify">Access notice</a></li></ul></nav>
-
+        <nav class="blob-footer__column" aria-label="Site notices">
+          <h2 class="blob-footer__heading">Site notices</h2>
+          <ul class="blob-footer__links">
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/access-notice">Access notice</a></li>
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/privacy">Privacy policy</a></li>
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/cookies">Cookies &amp; browser storage</a></li>
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/terms">Terms &amp; conditions</a></li>
+          </ul>
+        </nav>
+        <nav class="blob-footer__column" aria-label="Resources">
+          <h2 class="blob-footer__heading">Resources</h2>
+          <ul class="blob-footer__links">
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/security">Security &amp; responsible disclosure</a></li>
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/ai-disclosure">AI disclosure &amp; research integrity</a></li>
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="https://github.com/nicolasgioanni/cyber-lab-research">Research repository</a></li>
+          </ul>
+        </nav>
       </div></div></div>
+      <noscript><nav class="blob-footer__noscript" aria-label="Lab policies">
+        <a class="blob-footer__link" href="/access-notice">Access notice</a>
+        <a class="blob-footer__link" href="/privacy">Privacy policy</a>
+        <a class="blob-footer__link" href="/cookies">Cookies &amp; browser storage</a>
+        <a class="blob-footer__link" href="/terms">Terms &amp; conditions</a>
+        <a class="blob-footer__link" href="/security">Security &amp; responsible disclosure</a>
+        <a class="blob-footer__link" href="/ai-disclosure">AI disclosure &amp; research integrity</a>
+      </nav></noscript>
     </div>
   </footer>
 </div>
@@ -51,6 +90,7 @@
         <h1 class="project-skill-dialog__title" id="gate-title" tabindex="-1" autofocus>Checking your connection</h1>
         <p class="project-skill-dialog__summary" id="verification-status" role="status" aria-live="polite">Cloudflare verifies your browser before the access notice opens.</p>
         <div id="turnstile-widget"></div>
+        <p class="gate-policy-link"><a href="/access-notice" target="_blank" rel="noopener noreferrer">Read the access notice in a new tab</a></p>
         <noscript><p>Enable JavaScript in this browser to run Cloudflare verification. <a href="/exit">Leave the lab</a></p></noscript>
       </div>
       <div class="gate-actions verification-actions"><a href="/exit" class="glass-button glass-button--secondary hover-base-1">Leave</a><button class="glass-button glass-button--secondary hover-base-1" type="button" id="verification-retry" hidden>Retry verification</button></div>
@@ -58,12 +98,14 @@
     <div id="notice-stage" class="gate-stage" hidden>
       <div class="gate-copy" tabindex="0" role="region" aria-labelledby="notice-title">
         <h1 id="notice-title" class="project-skill-dialog__title" tabindex="-1">Access notice</h1>
-        <p class="project-skill-dialog__summary" id="notice-intro">You are entering a monitored research site. By continuing, you acknowledge the following terms.</p>
-        <section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Permitted use</h2><p>You may read the published research and reproduce its experiments. Testing this site or any connected service requires prior authorization.</p></section>
-        <section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Security monitoring</h2><p>For up to seven days, the lab keeps the time of access, IP address, estimated country, route category, access decision and a shortened browser user-agent. Cloudflare also processes security events.</p></section>
-        <section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Browser session</h2><p>An essential first-party session cookie links this notice to your browser for up to ten minutes. Accepting or declining clears it. Each new page load requires verification and acceptance. Choosing a color theme saves that preference in your browser.</p></section>
+        <p class="project-skill-dialog__summary" id="notice-intro">Nicolas Gioanni operates this independent security research site. Access to the research is monitored.</p>
+<section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Permitted use</h2><p>You may read and cite the published work and reproduce documented experiments on systems you control. Testing the live lab or a connected service requires separate written authorization.</p></section>
+<section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Security monitoring</h2><p>Cloudflare processes connection and browser signals before you accept. The lab logs the time, IP address, estimated country, route category, access decision, shortened browser user-agent and, on acceptance, the policy revision. Active lab logs have a seven-day retention policy. <a target="_blank" rel="noopener noreferrer" href="/privacy">Privacy Policy</a></p></section>
+<section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Browser session</h2><p>An essential cookie connects this notice to the browser check for up to ten minutes. Accepting or declining clears it. Navigating inside the admitted page reuses that visit. Opening a fresh research page requires another check. A theme choice is saved in your browser. <a target="_blank" rel="noopener noreferrer" href="/cookies">Cookies &amp; Browser Storage</a></p></section>
+<section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Your choice</h2><p>Select Decline to leave the research closed. You can read the policies independently.</p></section>
       </div>
       <div class="gate-actions">
+        <p id="accept-agreement" class="gate-agreement">By selecting Accept and enter, you agree to the <a target="_blank" rel="noopener noreferrer" href="/terms">Terms &amp; Conditions</a> and acknowledge the <a target="_blank" rel="noopener noreferrer" href="/access-notice">Access Notice</a>.</p>
         <p id="notice-status" role="status" aria-live="polite"></p>
         <button type="button" id="decline-entry" class="glass-button glass-button--secondary hover-base-1">Decline</button>
         <button type="button" id="accept-entry" class="glass-button glass-button--primary hover-base-1 hover-base-1--solid">Accept and enter</button>
@@ -71,5 +113,6 @@
     </div>
   </div>
 </dialog>
+
 </body>
 </html>

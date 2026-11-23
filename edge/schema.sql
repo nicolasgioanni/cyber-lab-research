@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS access_events (
   path TEXT NOT NULL,
   ip TEXT,
   country TEXT,
-  user_agent TEXT
+  user_agent TEXT,
+  policy_revision TEXT
 );
 CREATE INDEX IF NOT EXISTS access_events_at ON access_events(at);
 CREATE TABLE IF NOT EXISTS admission_keys (

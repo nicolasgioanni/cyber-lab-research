@@ -28,9 +28,11 @@ The runner checks the scanner version, writes a count for each sample and scan m
 
 ## Research site
 
-Open the [Research Lab](https://lab.nicolasmgioanni.dev/) to read the study. The entry document runs a visible, automatic Cloudflare Turnstile check and presents the access notice. Acceptance opens the reviewed research in the same page. Refreshing or opening another tab starts a new visit.
+Open the [Research Lab](https://lab.nicolasmgioanni.dev/) to read the study. The entry document runs a visible, automatic Cloudflare Turnstile check and presents the access notice. Acceptance opens Home, Agents, Validation, and Retrieval in one document. The [Validation study](https://lab.nicolasmgioanni.dev/validation#study) links each measurement to its rule and source. Refreshing a research view or opening it in a new tab starts a new visit.
 
-The page uses the original Smart-Porfolio shell, research layout, skill dialog, Space Grotesk type, themes and motion. The vendored CSS modules are annotated with their original filenames and distributed under the accompanying MIT license. The build fingerprints the public presentation assets. [Portfolio source](https://github.com/nicolasgioanni/Smart-Porfolio/tree/de48df2f857656d04f217d4f0e87f816cbfeba4a/src)
+The [Access Notice](https://lab.nicolasmgioanni.dev/access-notice), [Privacy Policy](https://lab.nicolasmgioanni.dev/privacy), [Cookies & Browser Storage](https://lab.nicolasmgioanni.dev/cookies), [Terms & Conditions](https://lab.nicolasmgioanni.dev/terms), [Security & Responsible Disclosure](https://lab.nicolasmgioanni.dev/security), and [AI Disclosure & Research Integrity](https://lab.nicolasmgioanni.dev/ai-disclosure) are directly readable. The popup and Access Notice share one text source. A successful acceptance records the displayed policy revision under the lab’s seven-day retention policy.
+
+The page uses the original Smart-Porfolio shell, navigation, policy layout, skill dialog, Space Grotesk type, themes and motion. The vendored CSS modules are annotated with their original filenames and distributed under the accompanying MIT license. The build fingerprints the public presentation assets. [Portfolio source](https://github.com/nicolasgioanni/Smart-Porfolio/tree/de48df2f857656d04f217d4f0e87f816cbfeba4a/src)
 
 Build the rendered documents with Python 3.9 or newer, then run the package and admission tests with Node 22.13 or later.
 

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="description" content="Reproducible experiments in defensive security.">
-  <title>Security research · Research Lab</title>
+  <meta name="description" content="Independent research into security controls and AI-assisted defense.">
+  <title>Home · Research Lab</title>
   <link rel="icon" href="/assets/lab-mark.png" type="image/png">
   <link rel="stylesheet" href="/assets/portfolio-tokens.css">
   <link rel="stylesheet" href="/assets/portfolio.css">
@@ -13,9 +13,25 @@
 </head>
 <body class="workspace-page">
 <div class="site-shell" data-glass-effects="true">
+  <a class="lab-skip-link" href="#lab-main">Skip to content</a>
   <header class="blob-header" data-header-state="expanded">
     <div class="glass-blob glass-blob--nav blob-header__island">
       <div class="site-brand"><span class="site-brand__text"><span class="site-brand__name">Research Lab</span></span></div>
+      <nav class="main-navigation" aria-label="Main navigation" data-route-indicator-ready="false">
+        <span class="active-route-indicator" aria-hidden="true" data-visible="false"></span>
+        <a href="/" class="main-navigation__link hover-base-1 hover-base-1--route" data-navigation-link="true"><span>Home</span></a>
+        <a href="/agents" class="main-navigation__link hover-base-1 hover-base-1--route" data-navigation-link="true"><span>Agents</span></a>
+        <a href="/validation" class="main-navigation__link hover-base-1 hover-base-1--route" data-navigation-link="true"><span>Validation</span></a>
+        <a href="/retrieval" class="main-navigation__link hover-base-1 hover-base-1--route" data-navigation-link="true"><span>Retrieval</span></a>
+      </nav>
+      <div class="mobile-navigation mobile-navigation__rail">
+        <nav aria-label="Mobile navigation" class="mobile-navigation__routes">
+          <a href="/" class="mobile-navigation__link hover-base-1 hover-base-1--compact">Home</a>
+          <a href="/agents" class="mobile-navigation__link hover-base-1 hover-base-1--compact">Agents</a>
+          <a href="/validation" class="mobile-navigation__link hover-base-1 hover-base-1--compact">Validation</a>
+          <a href="/retrieval" class="mobile-navigation__link hover-base-1 hover-base-1--compact">Retrieval</a>
+        </nav>
+      </div>
       <div class="blob-header__actions">
         <div class="theme-switcher" data-open="false">
           <button type="button" class="glass-icon-button hover-base-1 hover-base-1--compact theme-switcher__trigger" aria-label="Choose color theme" aria-expanded="false" aria-controls="theme-popover">
@@ -28,54 +44,138 @@
       </div>
     </div>
   </header>
-  <main class="site-main" id="main"><div class="page-container page-container--research">
+  <main class="site-main" id="lab-main" tabindex="-1"><section class="page-container page-container--research" data-research-view="/" aria-labelledby="research-title">
   <div class="page-intro page-intro--panel motion-reveal">
     <div class="glass-surface glass-surface--strong page-intro__surface">
       <header class="section-header section-header--page"><div class="section-header__copy">
-        <h1 class="page-title" id="research-title" tabindex="-1">Security research</h1>
-        <p class="page-description">I test what defensive tools can detect in controlled experiments. Each study pairs a specific question with a reproducible method and measured results.</p>
+        <h1 class="page-title" id="research-title" tabindex="-1">Independent security research</h1>
+        <p class="page-description">I study how agents, retrieval systems, and defensive tools handle security decisions. I publish the test conditions and measured results so readers can judge what each experiment establishes.</p>
       </div></header>
     </div>
   </div>
   <div class="research-list" data-motion="enabled">
-    <div class="research-project-wrap">
-      <article class="glass-surface glass-surface--default research-project" data-visual-side="left" aria-labelledby="study-title">
-        <div class="research-project__visual">
-          <figure class="study-figure" aria-labelledby="comparison-title">
-            <figcaption id="comparison-title">After the marker was removed</figcaption>
-            <dl class="scope-result">
-              <div><dt>Current files</dt><dd>0 findings per run</dd></div>
-              <div><dt>Git history</dt><dd>1 finding per run</dd></div>
-            </dl>
-          </figure>
-        </div>
-        <div class="research-project__content">
-          <header class="research-project__header">
-            <h2 class="research-project__title" id="study-title">Can a history scan find a deleted secret?</h2>
-            <p class="research-project__formal-title">Gitleaks 8.30.1 · Synthetic Git repositories</p>
-          </header>
-          <div class="research-project__body">
-            <p class="research-project__summary">The working-tree scan found no trace of the synthetic secret after deletion. Scanning the commit history recovered it in each run.</p>
-            <p class="research-project__impact">8 of 8 observations matched across 2 independent runs.</p>
-            <details class="study-disclosure">
-              <summary class="hover-base-1 hover-base-1--compact">Method and results</summary>
-              <div class="study-detail">
-                <p>In each run, one repository received a synthetic secret in its first commit and removed it in the second. A clean control followed the same sequence with ordinary text. Gitleaks scanned both working trees and both commit histories using the same rule.</p>
-                <div class="study-table" role="region" aria-label="Expected and observed finding counts" tabindex="0">
-                  <table><caption>Findings per scan</caption>
-                    <thead><tr><th scope="col">Sample</th><th scope="col">Scan</th><th scope="col">Expected</th><th scope="col">Run 1</th><th scope="col">Run 2</th></tr></thead>
-                    <tbody><tr><th scope="row">Removed marker</th><td>Current files</td><td>0</td><td>0</td><td>0</td></tr><tr><th scope="row">Removed marker</th><td>Git history</td><td>1</td><td>1</td><td>1</td></tr><tr><th scope="row">Clean control</th><td>Current files</td><td>0</td><td>0</td><td>0</td></tr><tr><th scope="row">Clean control</th><td>Git history</td><td>0</td><td>0</td><td>0</td></tr></tbody></table>
-                </div>
-                <p>Last measured 2026-11-23 UTC. Each run used fresh fixtures.</p>
-                <a class="glass-button glass-button--secondary hover-base-1" href="https://github.com/nicolasgioanni/cyber-lab-research/tree/main/experiment">View reproduction source</a>
-              </div>
-            </details>
-          </div>
-        </div>
-      </article>
+    <section class="research-project-wrap" aria-labelledby="areas-title">
+      <header class="section-header lab-section-heading"><h2 class="section-heading" id="areas-title">Research areas</h2></header>
+      <div class="featured-grid featured-grid--three">
+        <article class="glass-card glass-card--comfortable portfolio-card portfolio-card--detail">
+          <div class="content-card__header"><p class="lab-status">Planned</p><h3 class="content-card__title"><a class="lab-title-link" href="/agents">Agents</a></h3></div>
+          <p class="content-card__summary">Can an agent trace a dependency advisory to the affected code and propose a fix that preserves expected behavior?</p>
+        </article>
+        <article class="glass-card glass-card--comfortable portfolio-card portfolio-card--detail">
+          <div class="content-card__header"><p class="lab-status">Published study</p><h3 class="content-card__title"><a class="lab-title-link" href="/validation">Validation</a></h3></div>
+          <p class="content-card__summary">Where does a defensive control find an expected signal, and what does it miss when the scope of a scan changes?</p>
+        </article>
+        <article class="glass-card glass-card--comfortable portfolio-card portfolio-card--detail">
+          <div class="content-card__header"><p class="lab-status">Planned</p><h3 class="content-card__title"><a class="lab-title-link" href="/retrieval">Retrieval</a></h3></div>
+          <p class="content-card__summary">Does a retrieval system respect document permissions and support its answers with sources a reader can inspect?</p>
+        </article>
+      </div>
+    </section>
+    <article class="glass-surface glass-surface--strong lab-panel research-project-wrap">
+      <p class="eyebrow">Published study</p>
+      <h2 class="section-heading"><a class="lab-title-link" href="/validation#study">Detecting committed secrets after deletion</a></h2>
+      <p class="lab-lead">In both runs, Gitleaks found the deleted synthetic marker in Git history. Scanning the current files found nothing.</p>
+    </article>
+  </div>
+</section>
+
+<section hidden class="page-container page-container--research" data-research-view="/agents" aria-labelledby="agents-title">
+  <div class="page-intro page-intro--panel motion-reveal">
+    <div class="glass-surface glass-surface--strong page-intro__surface">
+      <header class="section-header section-header--page"><div class="section-header__copy">
+        <p class="eyebrow">Planned</p>
+        <h1 id="agents-title" class="page-title" tabindex="-1">Agents</h1>
+        <p class="page-description">An advisory identifies an affected package. Remediation also requires finding where a project depends on it, changing the right files, and checking the behavior of the result.</p>
+      </div></header>
     </div>
   </div>
-</div></main>
+  <div class="research-list" data-motion="enabled">
+    <article class="glass-surface glass-surface--strong lab-panel research-project-wrap">
+      <h2 class="section-heading">Evaluating an agent’s patch</h2>
+      <p class="lab-lead">The planned benchmark pairs a synthetic repository with an advisory and a known affected dependency. The agent will be asked to explain the dependency path and submit a patch for review.</p>
+      <dl class="lab-measures">
+        <div><dt>Identification</dt><dd>Compare the files, versions, and dependency path cited by the agent with the fixture’s known dependency graph.</dd></div>
+        <div><dt>Remediation</dt><dd>Inspect the proposed change and rerun the dependency check against the same advisory data.</dd></div>
+        <div><dt>Regression checks</dt><dd>Run the project’s behavioral tests. Record failed checks and unnecessary changes alongside any successful repair.</dd></div>
+      </dl>
+    </article>
+  </div>
+</section>
+
+<section hidden class="page-container page-container--research" data-research-view="/validation" aria-labelledby="validation-title">
+  <div class="page-intro page-intro--panel motion-reveal">
+    <div class="glass-surface glass-surface--strong page-intro__surface">
+      <header class="section-header section-header--page"><div class="section-header__copy">
+        <h1 class="page-title" id="validation-title" tabindex="-1">Validation</h1>
+        <p class="page-description">I evaluate defensive tools against fixtures with known outcomes. Each published study identifies the control, records the observations, and explains the limits of the result.</p>
+      </div></header>
+    </div>
+  </div>
+  <div class="research-list" data-motion="enabled">
+    <article class="glass-surface glass-surface--strong lab-panel research-project-wrap" id="study" tabindex="-1" aria-labelledby="study-title">
+      <header class="section-header section-header--compact"><div class="section-header__copy">
+        <p class="eyebrow">Published study</p>
+        <h2 id="study-title" class="section-heading">Detecting committed secrets after deletion</h2>
+      </div></header>
+      <p class="lab-lead">In both runs, Gitleaks found the deleted synthetic marker in Git history. Scanning the current files found nothing.</p>
+      <div class="lab-study-method">
+        <section aria-labelledby="method-title">
+          <h3 class="content-card__title" id="method-title">Method</h3>
+          <p>Each of two independent runs created two Git repositories. In one, the first commit introduced an inert marker and the second removed it. The clean control followed the same sequence with ordinary text.</p>
+          <p>Gitleaks 8.30.1 applied the same lab-authored rule to the current files and the Git history of each repository.</p>
+        </section>
+        <section aria-labelledby="counts-title">
+          <h3 class="content-card__title" id="counts-title">Results</h3>
+          <div class="study-table" role="region" aria-labelledby="counts-title" tabindex="0">
+            <table><caption>Findings per scan</caption>
+              <thead><tr><th scope="col">Sample</th><th scope="col">Scan scope</th><th scope="col">Expected</th><th scope="col">Run 1</th><th scope="col">Run 2</th></tr></thead>
+              <tbody><tr><th scope="row">Removed marker</th><td>Current files</td><td>0</td><td>0</td><td>0</td></tr><tr><th scope="row">Removed marker</th><td>Git history</td><td>1</td><td>1</td><td>1</td></tr><tr><th scope="row">Clean control</th><td>Current files</td><td>0</td><td>0</td><td>0</td></tr><tr><th scope="row">Clean control</th><td>Git history</td><td>0</td><td>0</td><td>0</td></tr></tbody>
+            </table>
+          </div>
+          <p class="lab-note">Last measured 2026-11-23 UTC. Each run used fresh fixtures.</p>
+        </section>
+      </div>
+      <section class="lab-study-interpretation" aria-labelledby="scope-title">
+        <h3 class="content-card__title" id="scope-title">What the result establishes</h3>
+        <p>A working-tree scan can return zero findings even when an earlier commit contains the marker. Both scans of the clean control returned zero findings in both runs. This experiment covers one rule and one synthetic marker. Estimating detection rates across repositories would require testing other formats and rules.</p>
+      </section>
+      <nav class="lab-source-links" aria-label="Study evidence">
+        <a href="https://github.com/nicolasgioanni/cyber-lab-research/blob/0f4f6c90a2702266de6bf1d9873cc4f084f637ea/site/data/worker-1.json">Run 1 record</a>
+        <a href="https://github.com/nicolasgioanni/cyber-lab-research/blob/0f4f6c90a2702266de6bf1d9873cc4f084f637ea/site/data/worker-2.json">Run 2 record</a>
+        <a href="https://github.com/nicolasgioanni/cyber-lab-research/blob/0f4f6c90a2702266de6bf1d9873cc4f084f637ea/experiment/rule.toml">Detection rule</a>
+        <a href="https://github.com/nicolasgioanni/cyber-lab-research/blob/0f4f6c90a2702266de6bf1d9873cc4f084f637ea/experiment/run.py">Reproduction source</a>
+      </nav>
+    </article>
+    <article class="glass-card glass-card--comfortable portfolio-card portfolio-card--detail research-project-wrap">
+      <div class="content-card__header"><p class="lab-status">Planned</p><h2 class="content-card__title">Detection under simulated activity</h2></div>
+      <p class="content-card__summary">Future evaluations will compare alerts from authorized, simulated security events with ordinary activity. Each case will define the expected alert before the control is run.</p>
+    </article>
+  </div>
+</section>
+
+<section hidden class="page-container page-container--research" data-research-view="/retrieval" aria-labelledby="retrieval-title">
+  <div class="page-intro page-intro--panel motion-reveal">
+    <div class="glass-surface glass-surface--strong page-intro__surface">
+      <header class="section-header section-header--page"><div class="section-header__copy">
+        <p class="eyebrow">Planned</p>
+        <h1 class="page-title" id="retrieval-title" tabindex="-1">Retrieval</h1>
+        <p class="page-description">Retrieval-augmented generation gives a model documents to consult when answering a question. Which documents it receives, and how it uses them, determine what the reader can safely rely on.</p>
+      </div></header>
+    </div>
+  </div>
+  <div class="research-list" data-motion="enabled">
+    <article class="glass-surface glass-surface--strong lab-panel research-project-wrap">
+      <h2 class="section-heading">Evaluating answers against a controlled corpus</h2>
+      <p class="lab-lead">The planned study will use synthetic documents, known permissions, and questions with traceable answers. The retrieval step and the generated answer will be evaluated separately.</p>
+      <dl class="lab-measures">
+        <div><dt>Access boundaries</dt><dd>Compare retrieved documents against the test reader’s permissions, including cases where a restricted document would best match the question.</dd></div>
+        <div><dt>Citation accuracy</dt><dd>Check whether each citation identifies an allowed source and whether the cited passage supports the answer.</dd></div>
+        <div><dt>Untrusted content</dt><dd>Place irrelevant instructions in a source document and record whether they change the answer. A faithful response should use the passage as evidence and preserve the reader’s original task.</dd></div>
+      </dl>
+    </article>
+  </div>
+</section>
+</main>
   <footer class="blob-footer blob-footer--compact" data-footer-state="compact">
     <div class="blob-footer__runway" aria-hidden="true"><span class="blob-footer__runway-sentinel"></span></div>
     <div class="glass-blob glass-blob--footer blob-footer__island">
@@ -85,9 +185,32 @@
       </div>
       <div class="blob-footer__details" id="footer-details" inert aria-hidden="true"><div class="blob-footer__details-inner"><div class="blob-footer__details-grid">
         <section class="blob-footer__identity"><h2 class="blob-footer__owner">Research Lab</h2><p class="blob-footer__description">Independent security research by Nicolas Gioanni.</p></section>
-        <nav class="blob-footer__column" aria-label="Visitor access"><h2 class="blob-footer__heading">Visitor access</h2><ul class="blob-footer__links"><li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/verify">Access notice</a></li></ul></nav>
-        <nav class="blob-footer__column" aria-label="Resources"><h2 class="blob-footer__heading">Resources</h2><ul class="blob-footer__links"><li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="https://github.com/nicolasgioanni/cyber-lab-research">Research repository</a></li></ul></nav>
+        <nav class="blob-footer__column" aria-label="Site notices">
+          <h2 class="blob-footer__heading">Site notices</h2>
+          <ul class="blob-footer__links">
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/access-notice">Access notice</a></li>
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/privacy">Privacy policy</a></li>
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/cookies">Cookies &amp; browser storage</a></li>
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/terms">Terms &amp; conditions</a></li>
+          </ul>
+        </nav>
+        <nav class="blob-footer__column" aria-label="Resources">
+          <h2 class="blob-footer__heading">Resources</h2>
+          <ul class="blob-footer__links">
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/security">Security &amp; responsible disclosure</a></li>
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="/ai-disclosure">AI disclosure &amp; research integrity</a></li>
+            <li><a class="blob-footer__link hover-base-1 hover-base-1--compact" href="https://github.com/nicolasgioanni/cyber-lab-research">Research repository</a></li>
+          </ul>
+        </nav>
       </div></div></div>
+      <noscript><nav class="blob-footer__noscript" aria-label="Lab policies">
+        <a class="blob-footer__link" href="/access-notice">Access notice</a>
+        <a class="blob-footer__link" href="/privacy">Privacy policy</a>
+        <a class="blob-footer__link" href="/cookies">Cookies &amp; browser storage</a>
+        <a class="blob-footer__link" href="/terms">Terms &amp; conditions</a>
+        <a class="blob-footer__link" href="/security">Security &amp; responsible disclosure</a>
+        <a class="blob-footer__link" href="/ai-disclosure">AI disclosure &amp; research integrity</a>
+      </nav></noscript>
     </div>
   </footer>
 </div>

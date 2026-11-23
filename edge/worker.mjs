@@ -1,5 +1,8 @@
-// The Pages package exposes only presentation assets. Both documents live in the Worker.
+// The Pages package exposes only presentation assets. Research and policy documents live in the Worker.
 const DOCUMENTS = /* PACK:DOCUMENTS */ null;
+const PUBLIC_POLICIES = new Set(/* PACK:POLICY_ROUTES */ null);
+const POLICY_REVISION = /* PACK:REVISION */ null;
+const TRACKS = new Set(['/agents', '/validation', '/retrieval']);
 const SCHEMA = /* PACK:SCHEMA */ null;
 const ASSET_URLS = /* PACK:ASSETS */ null;
 const HOST = 'lab.nicolasmgioanni.dev';
@@ -25,6 +28,7 @@ function response(body, status = 200, headers = {}) {
   } });
 }
 function redirect(location) { return response(null, 303, {Location: location}); }
+function gateFor(path) { return TRACKS.has(path) ? '/verify?view=' + path.slice(1) : '/verify'; }
 function documentResponse(html, method, headers) {
   return response(method === 'HEAD' ? null : html, 200, {'Content-Type': 'text/html; charset=utf-8', ...headers});
 }
@@ -58,9 +62,24 @@ async function digest(data) { return hex(await crypto.subtle.digest('SHA-256', d
 function fromBase64(value) { return Uint8Array.from(atob(value), character => character.charCodeAt(0)); }
 const algorithm = {name: 'ECDSA', namedCurve: 'P-256'};
 
+async function initializeDatabase(db) {
+  await db.batch(SCHEMA.map(statement => db.prepare(statement)));
+  // Existing deployments already have access_events. Old rows retain a null revision.
+  const hasColumn = () => db.prepare('SELECT policy_revision FROM access_events LIMIT 1').first();
+  try {
+    await hasColumn();
+  } catch {
+    try {
+      await db.prepare('ALTER TABLE access_events ADD COLUMN policy_revision TEXT').run();
+    } catch {
+      // Another isolate can finish the same migration between the check and the ALTER.
+      await hasColumn();
+    }
+  }
+}
 async function prepareDatabase(db) {
   if (!schemas.has(db)) {
-    const pending = db.batch(SCHEMA.map(statement => db.prepare(statement))).catch(error => {
+    const pending = initializeDatabase(db).catch(error => {
       schemas.delete(db);
       throw error;
     });
@@ -125,57 +144,65 @@ async function verifyBot(request, secret, input, fetcher) {
   return data.success === true && data.hostname === HOST && data.action === 'lab_admission' &&
     data.cdata === input.keyId;
 }
+// A pending challenge may be redeemed only against the edition displayed when it was issued.
+function noticeDigest(nonce) { return digest(text.encode(POLICY_REVISION + ':' + nonce)); }
 async function issueNotice(db, request, input, now) {
   const secret = random();
   const cookieHash = await digest(text.encode(secret));
   const nonce = random();
+  const pendingNonce = await noticeDigest(nonce);
   const results = await db.batch([
     // A key is bound to one verified page. D1 serializes concurrent token redemptions.
     db.prepare("INSERT INTO admission_grants(digest,stage,expires) SELECT ?,'notice',? WHERE NOT EXISTS (SELECT 1 FROM admission_proofs WHERE key_id=?)")
       .bind(cookieHash, now + NOTICE_TTL, input.keyId),
     db.prepare('INSERT INTO admission_proofs(grant_digest,key_id,public_key,nonce) SELECT digest,?,?,? FROM admission_grants WHERE digest=?')
-      .bind(input.keyId, input.publicKey, nonce, cookieHash),
+      .bind(input.keyId, input.publicKey, pendingNonce, cookieHash),
     db.prepare(eventInsert + 'SELECT ?,?,?,?,?,? WHERE EXISTS (SELECT 1 FROM admission_proofs WHERE grant_digest=?)')
       .bind(...eventFields(request,'notice',VERIFY,now), cookieHash), ...maintenance(db, now)
   ]);
   if (results[0].meta.changes !== 1) return response('Verification already used. Reopen the lab.', 409);
-  return limitPendingCookies(request, response(JSON.stringify({keyId: input.keyId, nonce, target: ORIGIN + ACCEPT}), 200, {
+  return limitPendingCookies(request, response(JSON.stringify({keyId: input.keyId, nonce, policyRevision: POLICY_REVISION, target: ORIGIN + ACCEPT}), 200, {
     'Content-Type': 'application/json', 'Set-Cookie': cookie(input.keyId, secret)
   }));
 }
 
 // RFC 9421 profile: fixed method/target components, one key per page and a single-use server nonce.
-const signatureInput = /^lab=\("@method" "@target-uri"\);keyid="([a-f0-9]{64})";nonce="([a-f0-9]{64})";alg="ecdsa-p256-sha256"$/;
+const signatureInput = /^lab=\("@method" "@target-uri" "x-lab-policy-revision"\);keyid="([a-f0-9]{64})";nonce="([a-f0-9]{64})";alg="ecdsa-p256-sha256"$/;
 async function accept(db, request, now) {
   const header = request.headers.get('Signature-Input') || '';
   const params = signatureInput.exec(header);
   const signature = /^lab=:([A-Za-z0-9+/]{86}==):$/.exec(request.headers.get('Signature') || '');
   if (!params || !signature) return null;
+  const revision = request.headers.get('X-Lab-Policy-Revision');
+  if (revision !== POLICY_REVISION)
+    return response('The policies have changed. Reopen verification to review the current notice.', 409);
   const [,keyId,nonce] = params;
+  const pendingNonce = await noticeDigest(nonce);
   const secret = cookieValue(request, keyId);
   if (!secret) return null;
   const cookieHash = await digest(text.encode(secret));
   const row = await db.prepare(`SELECT p.public_key FROM admission_proofs p JOIN admission_grants g ON p.grant_digest=g.digest
     WHERE g.digest=? AND g.stage='notice' AND g.expires>? AND p.key_id=? AND p.nonce=?`)
-    .bind(cookieHash, now, keyId, nonce).first();
+    .bind(cookieHash, now, keyId, pendingNonce).first();
   if (!row) return null;
   const publicKey = await crypto.subtle.importKey('raw', fromBase64(row.public_key), algorithm, false, ['verify']);
-  const signed = '"@method": POST\n"@target-uri": ' + request.url + '\n"@signature-params": ' + header.slice(4);
+  const signed = '"@method": POST\n"@target-uri": ' + request.url +
+    '\n"x-lab-policy-revision": ' + revision + '\n"@signature-params": ' + header.slice(4);
   const valid = await crypto.subtle.verify({name:'ECDSA', hash:'SHA-256'}, publicKey,
     fromBase64(signature[1]), text.encode(signed));
   if (!valid) return null;
   const receipt = random();
   const results = await db.batch([
     db.prepare(`UPDATE admission_proofs SET nonce=? WHERE grant_digest=? AND nonce=? AND EXISTS
-      (SELECT 1 FROM admission_grants WHERE digest=? AND stage='notice' AND expires>?)`).bind(receipt,cookieHash,nonce,cookieHash,now),
+      (SELECT 1 FROM admission_grants WHERE digest=? AND stage='notice' AND expires>?)`).bind(receipt,cookieHash,pendingNonce,cookieHash,now),
     db.prepare(`UPDATE admission_grants SET stage='accepted', expires=? WHERE digest=? AND EXISTS
       (SELECT 1 FROM admission_proofs WHERE grant_digest=? AND nonce=?)`).bind(now + HOUR,cookieHash,cookieHash,receipt),
-    db.prepare(eventInsert + 'SELECT ?,?,?,?,?,? WHERE EXISTS (SELECT 1 FROM admission_proofs WHERE grant_digest=? AND nonce=?)')
-      .bind(...eventFields(request,'accepted',ACCEPT,now),cookieHash,receipt), ...maintenance(db,now)
+    db.prepare('INSERT INTO access_events(at,event,path,ip,country,user_agent,policy_revision) SELECT ?,?,?,?,?,?,? WHERE EXISTS (SELECT 1 FROM admission_proofs WHERE grant_digest=? AND nonce=?)')
+      .bind(...eventFields(request,'accepted',ACCEPT,now),POLICY_REVISION,cookieHash,receipt), ...maintenance(db,now)
   ]);
   if (results[0].meta.changes !== 1) return null;
   // No bearer grant survives acceptance. The reviewed document is delivered in this response only.
-  return documentResponse(DOCUMENTS['/'], 'POST', {'Set-Cookie': cookie(keyId, '')});
+  return documentResponse(DOCUMENTS['/'], 'POST', {'Set-Cookie': cookie(keyId, ''), 'X-Lab-Session-Seconds': String(HOUR)});
 }
 async function decline(db, request, now) {
   const keyId = request.headers.get('X-Lab-Visit') || '';
@@ -212,7 +239,10 @@ async function serve(request, env, fetcher) {
   const {method} = request;
   const path = url.pathname;
   const read = method === 'GET' || method === 'HEAD';
-  if (url.origin !== ORIGIN) return read ? redirect(ORIGIN + '/verify') : response('Forbidden',403);
+  if (url.origin !== ORIGIN) {
+    const destination = PUBLIC_POLICIES.has(path) ? path : gateFor(path);
+    return read ? redirect(ORIGIN + destination) : response('Forbidden',403);
+  }
   if (method === 'POST' && (path === VERIFY || path === ACCEPT)) {
     const limited = await checkAdmissionRate(request, env.LAB_ADMISSION_LIMITER);
     if (limited) return limited;
@@ -229,7 +259,7 @@ async function serve(request, env, fetcher) {
       headers.set('Cache-Control', 'public, max-age=31536000, immutable');
       return new Response(result.body, {status:result.status, headers});
     }
-    if (path === '/exit') return documentResponse(DOCUMENTS['/exit'], method);
+    if (path === '/exit' || PUBLIC_POLICIES.has(path)) return documentResponse(DOCUMENTS[path], method);
   }
   const db = env.LAB_EVENTS;
   if (!db || env.BOT_CONTROL !== 'turnstile' ||
@@ -264,7 +294,7 @@ async function serve(request, env, fetcher) {
     return documentResponse(html,method,clear ? {'Set-Cookie':'__Host-lab_access=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0'} : {});
   }
   if (path.startsWith('/assets/') || path.startsWith('/_')) return response('Not found',404);
-  return redirect('/verify');
+  return redirect(gateFor(path));
 }
 async function handle(request, env, fetcher = fetch) {
   try { return await serve(request,env,fetcher); }

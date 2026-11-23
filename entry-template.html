@@ -5,6 +5,7 @@
         <h1 class="project-skill-dialog__title" id="gate-title" tabindex="-1" autofocus>Checking your connection</h1>
         <p class="project-skill-dialog__summary" id="verification-status" role="status" aria-live="polite">Cloudflare verifies your browser before the access notice opens.</p>
         <div id="turnstile-widget"></div>
+        <p class="gate-policy-link"><a href="/access-notice" target="_blank" rel="noopener noreferrer">Read the access notice in a new tab</a></p>
         <noscript><p>Enable JavaScript in this browser to run Cloudflare verification. <a href="/exit">Leave the lab</a></p></noscript>
       </div>
       <div class="gate-actions verification-actions"><a href="/exit" class="glass-button glass-button--secondary hover-base-1">Leave</a><button class="glass-button glass-button--secondary hover-base-1" type="button" id="verification-retry" hidden>Retry verification</button></div>
@@ -12,12 +13,10 @@
     <div id="notice-stage" class="gate-stage" hidden>
       <div class="gate-copy" tabindex="0" role="region" aria-labelledby="notice-title">
         <h1 id="notice-title" class="project-skill-dialog__title" tabindex="-1">Access notice</h1>
-        <p class="project-skill-dialog__summary" id="notice-intro">You are entering a monitored research site. By continuing, you acknowledge the following terms.</p>
-        <section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Permitted use</h2><p>You may read the published research and reproduce its experiments. Testing this site or any connected service requires prior authorization.</p></section>
-        <section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Security monitoring</h2><p>For up to seven days, the lab keeps the time of access, IP address, estimated country, route category, access decision and a shortened browser user-agent. Cloudflare also processes security events.</p></section>
-        <section class="project-skill-dialog__details"><h2 class="project-skill-dialog__details-title">Browser session</h2><p>An essential first-party session cookie links this notice to your browser for up to ten minutes. Accepting or declining clears it. Each new page load requires verification and acceptance. Choosing a color theme saves that preference in your browser.</p></section>
+        {{NOTICE}}
       </div>
       <div class="gate-actions">
+        <p id="accept-agreement" class="gate-agreement">{{AGREEMENT}}</p>
         <p id="notice-status" role="status" aria-live="polite"></p>
         <button type="button" id="decline-entry" class="glass-button glass-button--secondary hover-base-1">Decline</button>
         <button type="button" id="accept-entry" class="glass-button glass-button--primary hover-base-1 hover-base-1--solid">Accept and enter</button>

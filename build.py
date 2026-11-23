@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from html import escape
 
+from policies import NOTICE_AGREEMENT, POLICY_REVISION, POLICY_TITLES, build_policies, notice_html
+
 ROOT = Path(__file__).resolve().parent
 SITE = ROOT / 'site'
 REPO = 'https://github.com/nicolasgioanni/cyber-lab-research'
@@ -27,26 +29,24 @@ def load_measurement(path):
     return data
 
 
-def render_page(source, destination, title, description, values, kind):
+def render_page(content, destination, title, description, values, kind):
     shell = (ROOT / 'shell.html').read_text()
-    content = (ROOT / source).read_text().rstrip()
     is_entry = kind == 'entry'
     options = []
     for name, label in [('system', 'System'), ('light', 'Light'), ('navy', 'My mode'), ('dark', 'Dark')]:
         detail = '<span class="theme-switcher__option-detail" aria-hidden="true">Auto</span>' if name == 'system' else ''
         options.append(f'<button type="button" class="theme-switcher__option hover-base-1 hover-base-1--compact hover-base-1--inline" '
                        f'data-preference="{name}" aria-pressed="{str(name == "navy").lower()}"><span>{label}</span>{detail}</button>')
-    source_link = (f'<nav class="blob-footer__column" aria-label="Resources"><h2 class="blob-footer__heading">Resources</h2>'
-                   f'<ul class="blob-footer__links"><li><a class="blob-footer__link hover-base-1 hover-base-1--compact" '
-                   f'href="{REPO}">Research repository</a></li></ul></nav>')
     page = shell.replace('{{MAIN}}', '' if is_entry else content).replace('{{DIALOG}}', content if is_entry else '')
-    layout = dict(TITLE=title, DESCRIPTION=description, REPO=REPO, PAGE_CLASS=kind + '-page',
-                  FOOTER_RESOURCE=source_link if kind == 'workspace' else '', THEME_OPTIONS=''.join(options),
+    layout = dict(TITLE=escape(title), DESCRIPTION=escape(description, quote=True), REPO=REPO, PAGE_CLASS=kind + '-page',
+                  THEME_OPTIONS=''.join(options),
                   ADMISSION_SCRIPT='<script defer src="/assets/admission.js"></script>' if is_entry else '',
-                  GATE_CONFIG=' data-sitekey="__TURNSTILE_SITEKEY__"' if is_entry else '',
+                  GATE_CONFIG=f' data-sitekey="__TURNSTILE_SITEKEY__" data-policy-revision="{POLICY_REVISION}"' if is_entry else '',
                   SHELL_STATE=' inert' if is_entry else '')
     for key, value in dict(values, **layout).items():
         page = page.replace('{{' + key + '}}', value)
+    if '{{' in page or '}}' in page:
+        raise ValueError(f'Unfilled template field in {destination}')
     (SITE / destination).write_text('\n'.join(line.rstrip() for line in page.splitlines()) + '\n')
 
 
@@ -58,37 +58,31 @@ def render():
     for index, (sample, mode, expected) in enumerate(CASES):
         observed = ''.join(f'<td>{run["checks"][index]["observed"]}</td>' for run in runs)
         rows.append(f'<tr><th scope="row">{LABELS[sample]}</th><td>{LABELS[mode]}</td><td>{expected}</td>{observed}</tr>')
-    matched = sum(c['expected'] == c['observed'] for run in runs for c in run['checks'])
-    observations = sum(len(run['checks']) for run in runs)
-    if runs:
-        verdict = f'{matched} of {observations} observations matched across {len(runs)} independent runs.'
-        date = escape(runs[-1]['timestamp'].split('T')[0])
-        note = f'Last measured {date} UTC. Each run used fresh fixtures.'
-    else:
-        verdict = 'Measurements are pending.'
-        note = 'The table lists the expected counts for each case.'
+    if not runs:
+        raise ValueError('Publishing the study requires reviewed measurements')
+    date = escape(runs[-1]['timestamp'].split('T')[0])
+    expected = all(check['observed'] == check['expected'] for run in runs for check in run['checks'])
+    if not expected or len(runs) != 2:
+        raise ValueError('Review the study narrative before publishing different measurements')
+    values = dict(HEADERS=headers, ROWS=''.join(rows),
+                  NOTE=f'Last measured {date} UTC. Each run used fresh fixtures.',
+                  EVIDENCE_COMMIT='0f4f6c90a2702266de6bf1d9873cc4f084f637ea',
+                  FINDING='In both runs, Gitleaks found the deleted synthetic marker in Git history. '
+                          'Scanning the current files found nothing.')
+    render_page((ROOT / 'template.html').read_text(), 'index.html', 'Home',
+                'Independent research into security controls and AI-assisted defense.', values, 'workspace')
+    # A policy opened from the modal keeps the pending browser check in its original tab.
+    def modal_links(copy):
+        return copy.replace('<a ', '<a target="_blank" rel="noopener noreferrer" ')
 
-    def count_summary(case):
-        counts = {run['checks'][case]['observed'] for run in runs}
-        if not counts:
-            return 'Pending'
-        if len(counts) != 1:
-            return 'Varied by run'
-        number = counts.pop()
-        return f'{number} finding' + ('' if number == 1 else 's') + ' per run'
-
-    finding = ('The working-tree scan found no trace of the synthetic secret after deletion. '
-               'Scanning the commit history recovered it in each run.'
-               if runs and all(r['checks'][0]['observed'] == 0 and r['checks'][1]['observed'] == 1 for r in runs)
-               else 'The study compares scans of the current files and the commit history after a synthetic secret was removed.')
-    values = dict(HEADERS=headers, ROWS=''.join(rows), VERDICT=verdict, NOTE=note, FINDING=finding,
-                  DIRECTORY_COUNT=count_summary(0), HISTORY_COUNT=count_summary(1))
-    render_page('template.html', 'index.html', 'Security research',
-                'Reproducible experiments in defensive security.', values, 'workspace')
-    render_page('entry-template.html', 'entry.html', 'Visitor verification',
-                'Verify this browser and review the visitor access notice.', {}, 'entry')
-    render_page('exit-template.html', 'exit.html', 'Session closed',
+    notice = dict(NOTICE=modal_links(notice_html()), AGREEMENT=modal_links(NOTICE_AGREEMENT))
+    render_page((ROOT / 'entry-template.html').read_text(), 'entry.html', 'Visitor verification',
+                'Verify this browser and review the visitor access notice.', notice, 'entry')
+    render_page((ROOT / 'exit-template.html').read_text(), 'exit.html', 'Session closed',
                 'Your Research Lab visit has ended.', {}, 'closed')
+    for path, article in build_policies().items():
+        title = POLICY_TITLES[path]
+        render_page(article, path[1:] + '.html', title, f'{title} for the Research Lab.', {}, 'policy')
 
 
 if __name__ == '__main__':
